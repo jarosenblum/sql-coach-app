@@ -4,6 +4,7 @@ import {
   getReport,
   resumeFromReport,
   resumeSession,
+  sendSupportChat,
   startSession,
 } from "./api";
 import ChatPanel from "./components/ChatPanel";
@@ -163,12 +164,17 @@ export default function App() {
   const [checkpointRequired, setCheckpointRequired] = useState(false);
   const [showResumePanel, setShowResumePanel] = useState(false);
   const [resumeReportText, setResumeReportText] = useState("");
+  const [supportMessages, setSupportMessages] = useState([]);
+  const [supportInput, setSupportInput] = useState("");
+  const [isSupportLoading, setIsSupportLoading] = useState(false);
 
   useEffect(() => {
     const savedSessionId = localStorage.getItem("sqlcoach_session_id");
     if (!savedSessionId) return;
 
     async function restore() {
+      setSupportMessages([]);
+      setSupportInput("");
       try {
         const data = await resumeSession(savedSessionId);
         setSessionId(data.session_id);
@@ -185,6 +191,8 @@ export default function App() {
   }, []);
 
   async function handleResumeFromReport() {
+    setSupportMessages([]);
+    setSupportInput("");
     if (!resumeReportText.trim()) {
       alert("Paste a saved session report first.");
       return;
@@ -220,6 +228,8 @@ export default function App() {
       setLastFeedback("");
       setCheckpointRequired(false);
       setShowResumePanel(false);
+      setSupportMessages([]);
+      setSupportInput("");
 
       const intro = await getConceptIntro(data.session_id);
       setAssistantMessage(intro.assistant_message);
@@ -234,7 +244,8 @@ export default function App() {
 
   async function handleContinuePreviousSession() {
     const savedSessionId = localStorage.getItem("sqlcoach_session_id");
-
+    setSupportMessages([]);
+    setSupportInput("");
     if (savedSessionId) {
       try {
         const data = await resumeSession(savedSessionId);
@@ -273,6 +284,47 @@ export default function App() {
       setProcessingMessage("");
     }
   }
+
+  async function handleSendSupportChat() {
+  if (!supportInput.trim() || !sessionId || !currentQuestionId || currentQuestionId === "COMPLETE") {
+    return;
+  }
+
+  const userMessage = supportInput.trim();
+
+  setSupportMessages((msgs) => [
+    ...msgs,
+    { role: "user", content: userMessage },
+  ]);
+  setSupportInput("");
+  setIsSupportLoading(true);
+
+  try {
+    const data = await sendSupportChat({
+      session_id: sessionId,
+      question_id: currentQuestionId,
+      student_message: userMessage,
+      last_feedback: lastFeedback || "",
+      current_sql: "",
+    });
+
+    setSupportMessages((msgs) => [
+      ...msgs,
+      { role: "assistant", content: data.assistant_message || "" },
+    ]);
+  } catch (err) {
+    console.error("Support chat failed:", err);
+    setSupportMessages((msgs) => [
+      ...msgs,
+      {
+        role: "assistant",
+        content: "Sorry — support chat is unavailable right now.",
+      },
+    ]);
+  } finally {
+    setIsSupportLoading(false);
+  }
+}
 
   async function handleGetReport() {
     if (!sessionId) return;
@@ -466,7 +518,7 @@ async function handleSubmitResponse(data) {
           }}
         >
           <div style={{ fontWeight: 700, marginBottom: 6 }}>Checkpoint</div>
-          <div style={{ marginBottom: 10 }}>
+          <div style={{ marginBottom: 10 }}>  
             Click <strong>Print Session Report</strong> now and save your
             report. Then either continue now or come back later using{" "}
             <strong>Continue Previous Session</strong>.
@@ -479,8 +531,69 @@ async function handleSubmitResponse(data) {
           </div>
         </div>
       )}
+      {sessionId && currentQuestionId && currentQuestionId !== "COMPLETE" && (
+        <div
+          style={{
+            padding: 12,
+            background: "#f8f8ff",
+            border: "1px solid #cfd4ea",
+            borderRadius: 8,
+            marginBottom: 12,
+          }}
+        >
+          <div style={{ fontWeight: 700, marginBottom: 8 }}>Support Chat</div>
+          <div style={{ marginBottom: 10, lineHeight: 1.5 }}>
+            Ask for concept help, debugging guidance, or hints for the current question.
+          </div>
 
-      {sessionId && (
+          <div
+            style={{
+              maxHeight: 220,
+              overflowY: "auto",
+              background: "#ffffff",
+              border: "1px solid #e2e2e2",
+              borderRadius: 6,
+              padding: 10,
+              marginBottom: 10,
+            }}
+          >
+            {supportMessages.length === 0 ? (
+              <div style={{ color: "#666" }}>
+                No support messages yet.
+              </div>
+            ) : (
+              supportMessages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    marginBottom: 10,
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  <strong>{msg.role === "user" ? "You" : "Support"}</strong>
+                  <div>{msg.content}</div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <textarea
+            value={supportInput}
+            onChange={(e) => setSupportInput(e.target.value)}
+            rows={3}
+            style={{ width: "100%", marginBottom: 10 }}
+            placeholder="Ask for help with the current concept or your debugging process..."
+          />
+
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={handleSendSupportChat} disabled={isSupportLoading}>
+              {isSupportLoading ? "Thinking..." : "Ask Support Chat"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {sessionId && currentQuestionId !== "COMPLETE" && (
         <ChatPanel
           sessionId={sessionId}
           currentQuestionId={currentQuestionId}

@@ -93,3 +93,14 @@ class HintResponse(BaseModel):
     current_question_id: str
     hint_level: HintLevel
     assistant_message: str
+
+class SupportChatRequest(BaseModel):
+    session_id: str
+    question_id: str
+    student_message: str
+    last_feedback: Optional[str] = None
+    current_sql: Optional[str] = None
+
+
+class SupportChatResponse(BaseModel):
+    assistant_message: str

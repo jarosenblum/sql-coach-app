@@ -6,7 +6,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.adaptive_feedback import build_adaptive_feedback, choose_feedback_mode
 from app.attempt_logic import recommended_hint_level_from_attempts
 from app.hint_engine import get_hint
-from app.llm_service import evaluate_submission, get_concept_intro
+from app.llm_service import (
+    evaluate_submission,
+    generate_support_chat_response,
+    get_concept_intro,
+)
 from app.question_bank import QUESTION_BANK
 from app.report_engine import build_report
 from app.result_validator import validate_result_for_question
@@ -18,6 +22,8 @@ from app.schemas import (
     StartSessionResponse,
     StudentTurnRequest,
     StudentTurnResponse,
+    SupportChatRequest,
+    SupportChatResponse,
 )
 from app.sql_runner import execute_student_sql
 from app.state_engine import (
@@ -389,7 +395,7 @@ def submit_turn(req: StudentTurnRequest) -> StudentTurnResponse:
                 should_advance=False,
             )
 
-                # If assignment is complete, return a completion response instead of trying to load another question
+        # If assignment is complete, return a completion response instead of trying to load another question
         if state.current_question_id == "COMPLETE":
             save_session(state)
             return StudentTurnResponse(
@@ -412,9 +418,6 @@ def submit_turn(req: StudentTurnRequest) -> StudentTurnResponse:
             recommended_hint_level=recommended_hint_level_from_attempts(updated_qp),
             should_advance=should_advance,
         )
-
-        save_session(state)
-        return response
 
         save_session(state)
         return response
@@ -465,6 +468,35 @@ def hint(req: HintRequest) -> HintResponse:
         assistant_message=hint_text,
     )
 
+@app.post("/support-chat", response_model=SupportChatResponse)
+def support_chat(req: SupportChatRequest) -> SupportChatResponse:
+    state = load_session(req.session_id)
+    if not state:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    qid = req.question_id or state.current_question_id
+    if not qid or qid not in QUESTION_BANK:
+        raise HTTPException(status_code=400, detail="Invalid question ID")
+
+    q = QUESTION_BANK[qid]
+    concept = q["concept"]
+    task = q["task"]
+
+    try:
+        message = generate_support_chat_response(
+            question_id=qid,
+            concept=concept,
+            task=task,
+            student_message=req.student_message,
+            last_feedback=req.last_feedback,
+            current_sql=req.current_sql,
+        )
+        return SupportChatResponse(assistant_message=message)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Support chat failed: {type(e).__name__}: {str(e)}",
+        )
 
 @app.get("/report/{session_id}", response_model=PrintReportResponse)
 def get_report(session_id: str) -> PrintReportResponse:

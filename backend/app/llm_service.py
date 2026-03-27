@@ -90,3 +90,51 @@ def evaluate_submission(
         raise ValueError(f"Model returned invalid JSON: {content}") from e
 
     return data
+
+def generate_support_chat_response(
+    question_id: str,
+    concept: str,
+    task: str,
+    student_message: str,
+    last_feedback: str | None = None,
+    current_sql: str | None = None,
+) -> str:
+    prompt = f"""You are a SQL support coach for a structured assignment.
+
+Current question: {question_id}
+Current concept: {concept}
+Task: {task}
+
+Last feedback from the evaluator:
+{last_feedback or "None"}
+
+Student's current SQL attempt:
+{current_sql or "None provided"}
+
+Student question:
+{student_message}
+
+Rules:
+- Help the student understand the concept and debug their thinking.
+- Do not provide the full final SQL answer for the active question.
+- Prefer hints, partial scaffolds, conceptual clarification, and debugging guidance.
+- Do not say whether the student has passed or failed.
+- Keep the response supportive, clear, and concise.
+"""
+
+    resp = client.chat.completions.create(
+        model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are a helpful SQL support coach. "
+                    "Do not provide full final answers for the current assignment question."
+                ),
+            },
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0.3,
+    )
+
+    return resp.choices[0].message.content or ""

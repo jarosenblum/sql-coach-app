@@ -18,7 +18,8 @@ venv/
 env/
 
 # FastAPI / local data
-backend/data/
+backend/data/*
+!backend/data/w3schools_bootstrap.sql
 *.sqlite3
 
 # =========================
