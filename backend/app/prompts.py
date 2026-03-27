@@ -11,6 +11,7 @@ def concept_intro_prompt(question_id: str) -> str:
     teaching_focus = q.get("teaching_focus", "")
     common_mistake = q.get("common_mistake", "")
     syntax_pattern = q.get("syntax_pattern", "")
+    simple_example = q.get("simple_example", "")
     what_changes = q.get("what_changes_from_previous", "")
 
     if question_id in {"Q8", "Q9", "Q10", "Q11"}:
@@ -52,6 +53,14 @@ Return:
 5. SQL scaffold with blanks
 6. One brief guidance note phrased as support, not as error feedback
 """
+
+    example_reference_block = f"""
+
+Reference simple example:
+{simple_example}""" if simple_example else ""
+
+    example_return_line = "4. Simple example\n" if simple_example else ""
+
     return f"""You are introducing ONLY the concept for the current SQL question.
 
 Question ID: {question_id}
@@ -71,10 +80,7 @@ Common mistake to avoid:
 {common_mistake}
 
 Reference syntax pattern:
-{syntax_pattern}
-
-Reference simple example:
-{simple_example}
+{syntax_pattern}{example_reference_block}
 
 Rules:
 - Teach ONLY the concept required for this question.
@@ -89,8 +95,7 @@ Return:
 1. Explanation of the concept
 2. Assignment Instructions
 3. Simple syntax pattern
-4. Simple example
-5. One key thing to notice
+{example_return_line}5. One key thing to notice
 6. One short guidance note (not corrective feedback)
 """
 
