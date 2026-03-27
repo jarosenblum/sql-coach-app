@@ -41,13 +41,15 @@ function renderIntroSections(rawText) {
       <div
         style={{
           padding: 12,
-          background: "#f5f5f5",
+          background: "#ffffff",
+          border: "1px solid #d9d9d9",
           borderRadius: 6,
           marginBottom: 12,
           whiteSpace: "pre-wrap",
+          lineHeight: 1.5,
         }}
       >
-        {rawText}
+        {rawText.replace(/```sql|```/g, "")}
       </div>
     );
   }
@@ -55,18 +57,70 @@ function renderIntroSections(rawText) {
   return (
     <div
       style={{
-        padding: 12,
+        padding: 14,
         background: "#f5f5f5",
-        borderRadius: 6,
+        borderRadius: 8,
         marginBottom: 12,
       }}
     >
-      {items.map((item, idx) => (
-        <div key={idx} style={{ marginBottom: 14 }}>
-          <div style={{ fontWeight: 700, marginBottom: 4 }}>{item.heading}</div>
-          <div style={{ whiteSpace: "pre-wrap" }}>{item.body.join("\n")}</div>
-        </div>
-      ))}
+      {items.map((item, idx) => {
+        const bodyText = item.body.join("\n");
+        const cleanedBody = bodyText.replace(/```sql|```/g, "");
+        const headingLower = item.heading.toLowerCase();
+
+        const looksLikeSqlBlock =
+          bodyText.includes("```") ||
+          headingLower.includes("syntax") ||
+          headingLower.includes("blueprint") ||
+          headingLower.includes("scaffold");
+
+        const isAssignmentInstructions =
+          headingLower.includes("assignment instructions");
+
+        return (
+          <div key={idx} style={{ marginBottom: 16 }}>
+            <div style={{ fontWeight: 700, marginBottom: 6 }}>
+              {item.heading}
+            </div>
+
+            {isAssignmentInstructions ? (
+              <div
+                style={{
+                  background: "#fffaf0",
+                  border: "1px solid #e6d39b",
+                  borderLeft: "6px solid #d4a72c",
+                  borderRadius: 8,
+                  padding: "12px 14px",
+                  whiteSpace: "pre-wrap",
+                  lineHeight: 1.5,
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                }}
+              >
+                {cleanedBody}
+              </div>
+            ) : looksLikeSqlBlock ? (
+              <pre
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid #d9d9d9",
+                  padding: 10,
+                  borderRadius: 6,
+                  overflowX: "auto",
+                  whiteSpace: "pre-wrap",
+                  fontFamily: "monospace",
+                  margin: 0,
+                }}
+              >
+                {cleanedBody}
+              </pre>
+            ) : (
+              <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.5 }}>
+                {cleanedBody}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
