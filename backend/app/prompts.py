@@ -11,7 +11,6 @@ def concept_intro_prompt(question_id: str) -> str:
     teaching_focus = q.get("teaching_focus", "")
     common_mistake = q.get("common_mistake", "")
     syntax_pattern = q.get("syntax_pattern", "")
-    simple_example = q.get("simple_example", "")
     what_changes = q.get("what_changes_from_previous", "")
 
     if question_id in {"Q8", "Q9", "Q10", "Q11"}:
@@ -35,9 +34,6 @@ Common mistake to avoid:
 
 Reference syntax pattern:
 {syntax_pattern}
-
-Reference simple example:
-{simple_example}
 
 Rules:
 - Teach ONLY the concept required for this question.

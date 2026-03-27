@@ -11,7 +11,6 @@ QUESTION_BANK = {
         "teaching_focus": "Understand that SELECT * returns all columns from one table.",
         "common_mistake": "Introducing filtering or selecting specific columns too early.",
         "syntax_pattern": "SELECT * FROM Customers;",
-        "simple_example": "SELECT * FROM Customers;",
         "what_changes_from_previous": "This is the starting question. Focus only on selecting data from one table.",
         "allowed_feedback_scope": [
             "SELECT",
@@ -38,7 +37,6 @@ QUESTION_BANK = {
         "teaching_focus": "Understand that SELECT can return only chosen columns instead of every column.",
         "common_mistake": "Using SELECT * instead of listing the required columns.",
         "syntax_pattern": "SELECT CustomerName, City FROM Customers;",
-        "simple_example": "SELECT CustomerName, City FROM Customers;",
         "what_changes_from_previous": "Instead of returning all columns, now return only the columns requested.",
         "allowed_feedback_scope": [
             "specific columns",
