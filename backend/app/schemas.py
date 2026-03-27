@@ -5,6 +5,14 @@ from pydantic import BaseModel, Field
 
 
 QuestionStatus = Literal["not_started", "in_progress", "complete"]
+FeedbackMode = Literal[
+    "affirm_correct",
+    "targeted_correction",
+    "concept_reinforcement",
+    "retry_prompt",
+    "checkpoint_prompt",
+]
+HintLevel = Literal[0, 1, 2, 3]
 
 
 class AttemptRecord(BaseModel):
@@ -14,6 +22,11 @@ class AttemptRecord(BaseModel):
     explanation: str = ""
     evaluation_score: int = 0
     evaluation_note: str = ""
+    explanation_score: int = 0
+    explanation_note: str = ""
+    error_type: Optional[str] = None
+    concept_to_reinforce: Optional[str] = None
+    feedback_mode: Optional[FeedbackMode] = None
 
 
 class QuestionProgress(BaseModel):
@@ -22,6 +35,9 @@ class QuestionProgress(BaseModel):
     attempts: List[AttemptRecord] = Field(default_factory=list)
     concept_score: Optional[int] = None
     concept_note: Optional[str] = None
+    hint_level_used: HintLevel = 0
+    last_error_type: Optional[str] = None
+    last_feedback_mode: Optional[FeedbackMode] = None
 
 
 class SessionState(BaseModel):
@@ -52,6 +68,9 @@ class StudentTurnResponse(BaseModel):
     require_checkpoint: bool = False
     show_report: bool = False
     report_text: Optional[str] = None
+    feedback_mode: Optional[FeedbackMode] = None
+    recommended_hint_level: Optional[HintLevel] = None
+    should_advance: bool = False
 
 
 class ResumeRequest(BaseModel):
@@ -62,3 +81,15 @@ class ResumeRequest(BaseModel):
 class PrintReportResponse(BaseModel):
     session_id: str
     report_text: str
+
+
+class HintRequest(BaseModel):
+    session_id: str
+    student_message: Optional[str] = ""
+
+
+class HintResponse(BaseModel):
+    session_id: str
+    current_question_id: str
+    hint_level: HintLevel
+    assistant_message: str

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from app.question_bank import QUESTION_BANK, QUESTION_ORDER
+from app.question_bank import QUESTION_ORDER
 from app.schemas import AttemptRecord, QuestionProgress, SessionState
 
 
@@ -51,9 +51,17 @@ def record_attempt(
     explanation: str,
     evaluation_score: int,
     evaluation_note: str,
+    explanation_score: int,
+    explanation_note: str,
+    error_type: str | None = None,
+    concept_to_reinforce: str | None = None,
+    feedback_mode: str | None = None,
 ) -> None:
     qp = state.question_progress[question_id]
     qp.status = "in_progress"
+    qp.last_error_type = error_type
+    qp.last_feedback_mode = feedback_mode  # type: ignore[assignment]
+
     qp.attempts.append(
         AttemptRecord(
             attempt_number=len(qp.attempts) + 1,
@@ -62,5 +70,10 @@ def record_attempt(
             explanation=explanation,
             evaluation_score=evaluation_score,
             evaluation_note=evaluation_note,
+            explanation_score=explanation_score,
+            explanation_note=explanation_note,
+            error_type=error_type,
+            concept_to_reinforce=concept_to_reinforce,
+            feedback_mode=feedback_mode,  # type: ignore[arg-type]
         )
     )

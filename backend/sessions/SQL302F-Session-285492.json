@@ -1,0 +1,151 @@
+{
+  "session_id": "SQL302F-Session-285492",
+  "student_id": null,
+  "current_question_id": "Q3",
+  "completed_questions": [
+    "Q1",
+    "Q2"
+  ],
+  "checkpoint_completed": false,
+  "reflection_completed": false,
+  "question_progress": {
+    "Q1": {
+      "question_id": "Q1",
+      "status": "complete",
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "sql_query": "select * from customers",
+          "sandbox_result": "Returned 91 rows with columns CustomerID, CustomerName, ContactName, Address, City, PostalCode, Country.",
+          "explanation": "This query selects all columns and rows from the Customers table.",
+          "evaluation_score": 2,
+          "evaluation_note": "SQL correctly retrieves all columns and rows from the Customers table.",
+          "explanation_score": 1,
+          "explanation_note": "The explanation is correct but could be more detailed about what 'all columns and rows' entails.",
+          "error_type": "none",
+          "concept_to_reinforce": "SELECT * returns all columns from one table.",
+          "feedback_mode": "targeted_correction"
+        }
+      ],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": "none",
+      "last_feedback_mode": "targeted_correction"
+    },
+    "Q2": {
+      "question_id": "Q2",
+      "status": "complete",
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "sql_query": "SELECT CustomerName, City FROM Customers;",
+          "sandbox_result": "Returned 91 rows with columns CustomerName and City.",
+          "explanation": "This query selects the CustomerName and City columns from the Customers table.",
+          "evaluation_score": 2,
+          "evaluation_note": "The SQL correctly retrieves only the CustomerName and City columns.",
+          "explanation_score": 1,
+          "explanation_note": "The explanation is correct but could be more detailed about the purpose of selecting specific columns.",
+          "error_type": "none",
+          "concept_to_reinforce": "Selecting specific columns instead of using SELECT *",
+          "feedback_mode": "targeted_correction"
+        }
+      ],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": "none",
+      "last_feedback_mode": "targeted_correction"
+    },
+    "Q3": {
+      "question_id": "Q3",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q4": {
+      "question_id": "Q4",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q5": {
+      "question_id": "Q5",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q6": {
+      "question_id": "Q6",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q7": {
+      "question_id": "Q7",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q8": {
+      "question_id": "Q8",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q9": {
+      "question_id": "Q9",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q10": {
+      "question_id": "Q10",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q11": {
+      "question_id": "Q11",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    }
+  }
+}

@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function SessionHeader({ sessionId }) {
   return (
     <div style={{ marginBottom: 12 }}>

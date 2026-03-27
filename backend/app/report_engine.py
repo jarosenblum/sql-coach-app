@@ -10,23 +10,34 @@ def build_report(state: SessionState) -> str:
     lines: list[str] = []
     lines.append("SESSION REPORT")
     lines.append("----------------------------------------")
-    lines.append(f"StudentID: {state.student_id or 'Not Provided'}")
-    lines.append(f"SessionID: {state.session_id}")
+    lines.append(f"Student ID: {state.student_id or 'Not Provided'}")
+    lines.append(f"Session ID: {state.session_id}")
     lines.append(f"Date: {date.today().isoformat()}")
-    status = "Complete" if state.current_question_id == "COMPLETE" and state.reflection_completed else "In Progress"
+
+    status = (
+        "Complete"
+        if state.current_question_id == "COMPLETE" and state.reflection_completed
+        else "In Progress"
+    )
     lines.append(f"Status: {status}")
     lines.append(f"Current Question: {state.current_question_id}")
+
+    completed = ", ".join(state.completed_questions) if state.completed_questions else "None"
+    lines.append(f"Completed Questions: {completed}")
+
     lines.append("")
     lines.append("EVALUATION SUMMARY")
-    lines.append(f"Questions Completed: {len(state.completed_questions)}")
+    lines.append(f"Questions Completed Count: {len(state.completed_questions)}")
     lines.append("")
 
     for qid in QUESTION_ORDER:
-        qp = state.question_progress[qid]
-        if not qp.attempts:
+        qp = state.question_progress.get(qid)
+        if not qp or not qp.attempts:
             continue
         final_attempt = qp.attempts[-1]
-        lines.append(f"{qid}: {final_attempt.evaluation_score}/2 — {final_attempt.evaluation_note}")
+        lines.append(
+            f"{qid}: {final_attempt.evaluation_score}/2 — {final_attempt.evaluation_note}"
+        )
 
     lines.append("")
     lines.append("REVISION HIGHLIGHTS")
@@ -63,6 +74,15 @@ def build_report(state: SessionState) -> str:
             lines.append(f"Query: {attempt.sql_query}")
             lines.append(f"Result: {attempt.sandbox_result}")
             lines.append(f"Understanding: {attempt.explanation}")
-            lines.append(f"Evaluation: {attempt.evaluation_score}/2 — {attempt.evaluation_note}")
+            lines.append(
+                f"Evaluation: {attempt.evaluation_score}/2 — {attempt.evaluation_note}"
+            )
+            lines.append(
+                f"Explanation: {attempt.explanation_score}/2 — {attempt.explanation_note}"
+            )
+            if attempt.error_type:
+                lines.append(f"Error Type: {attempt.error_type}")
+            if attempt.concept_to_reinforce:
+                lines.append(f"Concept Reinforced: {attempt.concept_to_reinforce}")
 
     return "```text\n" + "\n".join(lines) + "\n```"
