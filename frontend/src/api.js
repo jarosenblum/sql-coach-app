@@ -1,5 +1,10 @@
+const envBase = import.meta.env.VITE_API_BASE_URL;
+const isLocalhost =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
+
 const API_BASE = (
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
+  envBase || (isLocalhost ? "http://localhost:8000" : "https://sql-coach-app.onrender.com")
 ).replace(/\/$/, "");
 
 async function handleJson(res, fallbackMessage) {
