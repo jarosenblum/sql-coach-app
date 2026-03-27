@@ -169,6 +169,7 @@ Evaluation rules:
 - Do NOT reference future questions.
 - Do NOT provide a full SQL solution.
 - If the SQL is correct but the explanation is weak, say so without changing the SQL guidance.
+- If you mention any SQL from the student, reproduce it as plain text only — never wrap it in backticks, code fences, or markdown.
 
 Return valid JSON with exactly these keys:
 - correctness_score: 0, 1, or 2
