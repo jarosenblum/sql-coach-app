@@ -50,7 +50,7 @@ function renderIntroSections(rawText) {
           lineHeight: 1.5,
         }}
       >
-        {rawText.replace(/```sql|```/g, "")}
+        {rawText.replace(/```sql|```|`/g, "")}
       </div>
     );
   }
@@ -66,7 +66,7 @@ function renderIntroSections(rawText) {
     >
       {items.map((item, idx) => {
         const bodyText = item.body.join("\n");
-        const cleanedBody = bodyText.replace(/```sql|```/g, "");
+        const cleanedBody = bodyText.replace(/```sql|```|`/g, "");
         const headingLower = item.heading.toLowerCase();
 
         const looksLikeSqlBlock =
