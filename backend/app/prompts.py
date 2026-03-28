@@ -180,4 +180,16 @@ Return valid JSON with exactly these keys:
 - concept_to_reinforce: the single concept to reinforce for THIS question only
 - should_advance: true or false
 - feedback_to_student: brief but pedagogically useful tutoring feedback for THIS question only, no full answer, no future-question guidance
+
+STRICT FORMAT REQUIREMENTS:
+- Output must be valid JSON only.
+- Do NOT use markdown.
+- Do NOT use backticks (`).
+- Do NOT use code fences (```).
+- If you mention SQL, it must appear as plain text only.
+- Your output will be parsed by a machine. Any markdown formatting will cause failure.
+
+Formatting example:
+BAD: `SELECT * FROM Customers;`
+GOOD: SELECT * FROM Customers;
 """
