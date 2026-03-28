@@ -10,8 +10,18 @@ def concept_intro_prompt(question_id: str) -> str:
     thinking = "\n".join(f"- {x}" for x in q["expected_thinking"])
     teaching_focus = q.get("teaching_focus", "")
     common_mistake = q.get("common_mistake", "")
-    syntax_pattern = q.get("syntax_pattern", "")
-    simple_example = q.get("simple_example", "")
+
+    def strip_markdown_sql(text: str) -> str:
+        return (
+            (text or "")
+            .replace("```sql", "")
+            .replace("```", "")
+            .replace("`", "")
+            .strip()
+        )
+
+    syntax_pattern = strip_markdown_sql(q.get("syntax_pattern", ""))
+    simple_example = strip_markdown_sql(q.get("simple_example", ""))
     what_changes = q.get("what_changes_from_previous", "")
 
     if question_id in {"Q8", "Q9", "Q10", "Q11"}:
@@ -98,7 +108,6 @@ Return:
 {example_return_line}5. One key thing to notice
 6. One short guidance note (not corrective feedback)
 """
-
 
 def evaluation_prompt(
     question_id: str,
