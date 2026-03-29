@@ -1,0 +1,120 @@
+{
+  "session_id": "SQL302F-Session-317185",
+  "student_id": null,
+  "current_question_id": "Q1",
+  "completed_questions": [],
+  "checkpoint_completed": false,
+  "reflection_completed": false,
+  "question_progress": {
+    "Q1": {
+      "question_id": "Q1",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q2": {
+      "question_id": "Q2",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q3": {
+      "question_id": "Q3",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q4": {
+      "question_id": "Q4",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q5": {
+      "question_id": "Q5",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q6": {
+      "question_id": "Q6",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q7": {
+      "question_id": "Q7",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q8": {
+      "question_id": "Q8",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q9": {
+      "question_id": "Q9",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q10": {
+      "question_id": "Q10",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    },
+    "Q11": {
+      "question_id": "Q11",
+      "status": "not_started",
+      "attempts": [],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": null,
+      "last_feedback_mode": null
+    }
+  }
+}

@@ -61,7 +61,7 @@ Return exactly in this format:
 2. Assignment Instructions
 3. Simple syntax pattern
 4. One key thing to notice
-5. One short guidance note
+5. A useful tip for this question
 
 Formatting rules:
 - Use exactly those five section titles.

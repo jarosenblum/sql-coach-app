@@ -11,6 +11,35 @@ import ChatPanel from "./components/ChatPanel";
 import ReportView from "./components/ReportView";
 import SessionHeader from "./components/SessionHeader";
 
+function renderInlineCommandHighlights(text) {
+  if (!text) return null;
+
+  const parts = text.split(/(\[[A-Z\s]+\])/g);
+
+  return parts.map((part, idx) => {
+    const isCommandToken = /^\[[A-Z\s]+\]$/.test(part);
+    if (!isCommandToken) return <React.Fragment key={idx}>{part}</React.Fragment>;
+
+    return (
+      <span
+        key={idx}
+        style={{
+          display: "inline-block",
+          background: "#e8f1ff",
+          color: "#174ea6",
+          border: "1px solid #b6ccff",
+          borderRadius: 6,
+          padding: "1px 6px",
+          fontWeight: 700,
+          margin: "0 2px",
+        }}
+      >
+        {part}
+      </span>
+    );
+  });
+}
+
 function renderIntroSections(rawText) {
   if (!rawText) return null;
 
@@ -23,12 +52,13 @@ function renderIntroSections(rawText) {
   let current = null;
 
   for (const line of lines) {
-    const numbered = line.match(/^(\d+)\.\s*\*?\*?(.+?)\*?\*?:\s*(.*)$/);
+    const numbered = line.match(/^(\d+)\.\s*(.+)$/);
     if (numbered) {
       if (current) items.push(current);
       current = {
+        number: numbered[1],
         heading: numbered[2].trim(),
-        body: numbered[3] ? [numbered[3].trim()] : [],
+        body: [],
       };
     } else if (current) {
       current.body.push(line);
@@ -41,16 +71,18 @@ function renderIntroSections(rawText) {
     return (
       <div
         style={{
-          padding: 12,
-          background: "#ffffff",
-          border: "1px solid #d9d9d9",
-          borderRadius: 6,
-          marginBottom: 12,
+          padding: 18,
+          background: "#f8f9fb",
+          border: "1px solid #d7dce5",
+          borderRadius: 12,
+          marginBottom: 16,
           whiteSpace: "pre-wrap",
-          lineHeight: 1.5,
+          lineHeight: 1.6,
         }}
       >
-        {rawText.replace(/```sql|```|`/g, "")}
+        {renderInlineCommandHighlights(
+          rawText.replace(/```sql|```|`/g, "")
+        )}
       </div>
     );
   }
@@ -58,65 +90,77 @@ function renderIntroSections(rawText) {
   return (
     <div
       style={{
-        padding: 14,
-        background: "#f5f5f5",
-        borderRadius: 8,
-        marginBottom: 12,
+        padding: 20,
+        background: "#f7f8fa",
+        border: "1px solid #d7dce5",
+        borderRadius: 14,
+        marginBottom: 16,
+        boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
       }}
     >
       {items.map((item, idx) => {
-        const bodyText = item.body.join("\n");
-        const cleanedBody = bodyText.replace(/```sql|```|`/g, "");
+        const bodyText = item.body.join("\n").replace(/```sql|```|`/g, "");
         const headingLower = item.heading.toLowerCase();
-
-        const looksLikeSqlBlock =
-          bodyText.includes("```") ||
-          headingLower.includes("syntax") ||
-          headingLower.includes("blueprint") ||
-          headingLower.includes("scaffold");
 
         const isAssignmentInstructions =
           headingLower.includes("assignment instructions");
 
+        const isSyntaxPattern =
+          headingLower.includes("simple syntax pattern") ||
+          headingLower.includes("query blueprint") ||
+          headingLower.includes("sql scaffold");
+
         return (
-          <div key={idx} style={{ marginBottom: 16 }}>
-            <div style={{ fontWeight: 700, marginBottom: 6 }}>
-              {item.heading}
+          <div key={idx} style={{ marginBottom: idx < items.length - 1 ? 22 : 0 }}>
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 400,
+                marginBottom: 10,
+                color: "#1f1f1f",
+              }}
+            >
+              {item.number}. {item.heading}
             </div>
 
             {isAssignmentInstructions ? (
               <div
                 style={{
-                  background: "#fffaf0",
+                  background: "#fff8e8",
                   border: "1px solid #e6d39b",
                   borderLeft: "6px solid #d4a72c",
-                  borderRadius: 8,
-                  padding: "12px 14px",
-                  whiteSpace: "pre-wrap",
-                  lineHeight: 1.5,
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                  borderRadius: 10,
+                  padding: "14px 16px",
+                  lineHeight: 1.6,
                 }}
               >
-                {cleanedBody}
+                {renderInlineCommandHighlights(bodyText)}
               </div>
-            ) : looksLikeSqlBlock ? (
-              <pre
+            ) : isSyntaxPattern ? (
+              <div
                 style={{
                   background: "#ffffff",
                   border: "1px solid #d9d9d9",
-                  padding: 10,
-                  borderRadius: 6,
-                  overflowX: "auto",
-                  whiteSpace: "pre-wrap",
+                  borderRadius: 10,
+                  padding: "14px 16px",
                   fontFamily: "monospace",
-                  margin: 0,
+                  fontSize: 15,
+                  lineHeight: 1.6,
+                  whiteSpace: "pre-wrap",
+                  overflowX: "auto",
                 }}
               >
-                {cleanedBody}
-              </pre>
+                {renderInlineCommandHighlights(bodyText)}
+              </div>
             ) : (
-              <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.5 }}>
-                {cleanedBody}
+              <div
+                style={{
+                  lineHeight: 1.7,
+                  whiteSpace: "pre-wrap",
+                  color: "#222",
+                }}
+              >
+                {renderInlineCommandHighlights(bodyText)}
               </div>
             )}
           </div>
@@ -409,7 +453,15 @@ return (
           value={resumeReportText}
           onChange={(e) => setResumeReportText(e.target.value)}
           rows={8}
-          style={{ width: "100%", marginBottom: 10 }}
+          style={{
+            width: "100%",
+            marginBottom: 10,
+            padding: 10,
+            border: "1px solid #c7d4ee",
+            borderRadius: 8,
+            background: "#ffffff",
+            lineHeight: 1.5,
+          }}
           placeholder="Paste your saved session report here..."
         />
         <div style={{ display: "flex", gap: 8 }}>
@@ -435,8 +487,15 @@ return (
     </div>
 
     {currentQuestionId && currentQuestionId !== "COMPLETE" && (
-      <div style={{ marginBottom: 10 }}>
-        <strong>Current Question:</strong> {currentQuestionId}
+      <div
+        style={{
+          fontSize: 22,
+          fontWeight: 800,
+          marginBottom: 14,
+          color: "#1f1f1f",
+        }}
+      >
+        Current Question: {currentQuestionId}
       </div>
     )}
 
@@ -522,11 +581,13 @@ return (
     {sessionId && currentQuestionId && currentQuestionId !== "COMPLETE" && (
       <div
         style={{
-          padding: 12,
-          background: "#f8f8ff",
-          border: "1px solid #cfd4ea",
-          borderRadius: 8,
-          marginBottom: 12,
+          padding: 16,
+          background: "#eef4ff",
+          border: "1px solid #bfd0f7",
+          borderLeft: "6px solid #4a78d3",
+          borderRadius: 12,
+          marginBottom: 16,
+          boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
         }}
       >
         <div style={{ fontWeight: 700, marginBottom: 8 }}>Support Chat</div>
@@ -539,10 +600,10 @@ return (
             maxHeight: 220,
             overflowY: "auto",
             background: "#ffffff",
-            border: "1px solid #e2e2e2",
-            borderRadius: 6,
-            padding: 10,
-            marginBottom: 10,
+            border: "1px solid #cfd8ea",
+            borderRadius: 10,
+            padding: 12,
+            marginBottom: 12,
           }}
         >
           {supportMessages.length === 0 ? (
@@ -551,13 +612,17 @@ return (
             </div>
           ) : (
             supportMessages.map((msg, idx) => (
-              <div
-                key={idx}
-                style={{
-                  marginBottom: 10,
-                  whiteSpace: "pre-wrap",
-                }}
-              >
+            <div
+              key={idx}
+              style={{
+                marginBottom: 10,
+                whiteSpace: "pre-wrap",
+                padding: "8px 10px",
+                borderRadius: 8,
+                background: msg.role === "user" ? "#f5f7fb" : "#ffffff",
+                border: "1px solid #e4e8f1",
+              }}
+            >
                 <strong>{msg.role === "user" ? "You" : "Support"}</strong>
                 <div>{msg.content}</div>
               </div>
