@@ -1,0 +1,237 @@
+# SQL Scaffolding Progression Schema
+# Purpose:
+# Define a hybrid instructional pattern for SQL coaching that:
+# 1. preserves enough structure to cue correct query architecture,
+# 2. gradually removes direct answer support,
+# 3. names newly introduced concepts when pedagogically useful,
+# 4. increases cognitive demand over time by replacing specifics with abstract slots.
+
+scaffolding_schema:
+  model_name: "Hybrid Progressive SQL Scaffolding"
+  version: "1.0"
+
+  core_principle:
+    description: >
+      Each question should provide enough structure to orient the student
+      to the relevant SQL architecture, while progressively obscuring
+      key content so the student must supply more of the query independently.
+      The scaffold should never accidentally become the full answer unless
+      that is explicitly intended for the earliest question(s).
+
+  pedagogical_axes:
+    axis_1_command_visibility:
+      description: >
+        Controls whether SQL commands are explicitly named or abstracted.
+      levels:
+        1_full_command:
+          description: "Command shown directly (e.g., SELECT, WHERE, ORDER BY)."
+        2_new_command_only:
+          description: >
+            Only the newly introduced command is named; previously learned
+            commands are abstracted or implied.
+        3_functional_command_slot:
+          description: >
+            Commands are abstracted into functional placeholders
+            such as [COMMAND], [FILTER], [AGGREGATE], [SORT], [JOIN].
+        4_minimal_architecture_only:
+          description: >
+            Only the broad structural pattern remains; students must infer
+            most commands and relationships themselves.
+
+    axis_2_content_visibility:
+      description: >
+        Controls whether table names, column names, values, and operators
+        are shown directly or replaced with abstract placeholders.
+      levels:
+        1_literal_values:
+          description: >
+            Specific table names, columns, and sometimes values are shown.
+        2_partial_literal:
+          description: >
+            Some key content is shown, but at least one important element
+            must be supplied by the student.
+        3_slot_placeholders:
+          description: >
+            Content is replaced by meaningful placeholders such as
+            [Table], [Column], [Value], [Condition], [Key].
+        4_abstract_blanks:
+          description: >
+            Content is replaced by generic blanks such as ___ or ______
+            to force fuller reconstruction.
+        5_functional_labels:
+          description: >
+            Content is represented only by functional roles like
+            [grouping column], [join key], [aggregate target].
+
+  scaffold_output_types:
+    explanation:
+      purpose: >
+        Explain the concept for the current question only.
+      rules:
+        - Do not provide the full answer.
+        - May name the newly introduced concept directly.
+        - Should distinguish what is new versus what is reused.
+
+    assignment_instruction:
+      purpose: >
+        Tell the student exactly what they need to accomplish.
+      rules:
+        - Must begin with "Write a SQL query that..."
+        - Can name the target table/columns/goal directly.
+        - Should be more explicit than the syntax pattern.
+
+    syntax_pattern:
+      purpose: >
+        Provide the hybrid scaffold itself.
+      rules:
+        - Must preserve the correct high-level query architecture.
+        - Must not collapse into a full answer unless allowed by stage policy.
+        - Must match the intended support level for that question.
+        - Should prioritize architectural cueing over answer disclosure.
+        - Should avoid malformed pseudo-SQL that teaches incorrect syntax.
+
+    key_notice:
+      purpose: >
+        Surface one conceptual or structural thing to watch.
+      rules:
+        - Should reinforce the new concept.
+        - Should not reveal the full solution.
+
+    guidance_note:
+      purpose: >
+        Give supportive advice without correcting a specific attempt.
+      rules:
+        - No full answer.
+        - No future concepts.
+        - Reinforce process, sequence, or common mistake avoidance.
+
+  placeholder_system:
+    approved_placeholder_types:
+      direct_named_slot:
+        examples:
+          - "[Table]"
+          - "[Column]"
+          - "[Value]"
+          - "[Condition]"
+          - "[Join Key]"
+      functional_slot:
+        examples:
+          - "[COMMAND]"
+          - "[FILTER]"
+          - "[SORT]"
+          - "[AGGREGATE]"
+          - "[GROUPING COLUMN]"
+      abstract_blank:
+        examples:
+          - "___"
+          - "______"
+      mixed_slot:
+        examples:
+          - "[COMMAND] ___"
+          - "[JOIN] ___ WITH ___ ON ___ = ___"
+
+    rules:
+      - Use named slots more often in earlier questions.
+      - Use abstract blanks more often in later questions.
+      - Preserve true SQL order even when abstracted.
+      - Do not create fake syntax that would mislead students.
+      - Avoid random placeholder strings like xxxxx unless they serve a deliberate visual role.
+      - Prefer readable abstraction over noisy abstraction.
+
+  progression_policy:
+    stage_1_early_foundations:
+      question_range: "Q1-Q3"
+      goal: >
+        Establish confidence and core architecture.
+      command_visibility: "1_full_command"
+      content_visibility: "1_literal_values to 2_partial_literal"
+      policy:
+        - Q1 may be close to the answer.
+        - Q2 should remove at least one key element.
+        - Q3 should preserve the new command while hiding table/column/value selectively.
+
+    stage_2_mid_foundations:
+      question_range: "Q4-Q6"
+      goal: >
+        Begin controlled withdrawal of support.
+      command_visibility: "2_new_command_only"
+      content_visibility: "2_partial_literal to 3_slot_placeholders"
+      policy:
+        - Name only the newly introduced construct when possible.
+        - Previously introduced query parts should become more structural and less literal.
+        - Architecture must still be legible.
+
+    stage_3_expansion:
+      question_range: "Q7-Q10"
+      goal: >
+        Increase independent reconstruction.
+      command_visibility: "2_new_command_only to 3_functional_command_slot"
+      content_visibility: "3_slot_placeholders to 4_abstract_blanks"
+      policy:
+        - Newly introduced constructs may be named.
+        - Earlier constructs should increasingly become slots or blanks.
+        - Patterns should cue operation type without handing over the full query.
+
+    stage_4_capstone:
+      question_range: "Q11"
+      goal: >
+        Require synthesis with minimal direct scaffolding.
+      command_visibility: "4_minimal_architecture_only"
+      content_visibility: "4_abstract_blanks to 5_functional_labels"
+      policy:
+        - Provide only functional architecture.
+        - Do not name all commands explicitly.
+        - Student must reconstruct the full multi-clause query.
+
+  question_level_template:
+    fields:
+      concept:
+        description: "Main concept introduced in this question."
+      task:
+        description: "Plain-language description of what the student must do."
+      expected_thinking:
+        description: "What the student should be reasoning through."
+      teaching_focus:
+        description: "Instructional purpose."
+      common_mistake:
+        description: "Likely misconception to prevent."
+      syntax_pattern:
+        description: "Hybrid scaffold aligned to stage policy."
+      scaffold_policy:
+        description: "Local override for command/content visibility if needed."
+        subfields:
+          command_visibility_level:
+          content_visibility_level:
+          show_new_command_name:
+          preserve_full_architecture:
+          allow_literal_table_name:
+          allow_literal_column_name:
+          allow_literal_value:
+      what_changes_from_previous:
+        description: "Explicit transition cue from prior question."
+      allowed_feedback_scope:
+        description: "What the tutor is allowed to reinforce."
+      explanation_keywords:
+        description: "Signals for evaluating explanation quality."
+      new_concept:
+        description: "Whether the question introduces a new SQL concept."
+      is_multi_concept:
+        description: "Whether the question integrates multiple prior concepts."
+
+  design_rules_for_generation:
+    - Always align syntax_pattern with the intended stage.
+    - Never let syntax_pattern silently drift into a full worked answer unless explicitly permitted.
+    - Never make syntax_pattern so abstract that query order becomes unintelligible.
+    - Keep architecture correct even when content is obscured.
+    - Newly introduced command names should be visible when that supports learning.
+    - Previously introduced commands should be progressively abstracted.
+    - Preserve a sense of progression from support to independence.
+
+  audit_checklist:
+    - Does the syntax pattern preserve valid query architecture?
+    - Does it avoid revealing the full answer unintentionally?
+    - Does it match the support level intended for this question?
+    - Does it clearly foreground the new concept?
+    - Does it withhold enough content to force student thinking?
+    - Does it remain readable and pedagogically useful?
+    - Does it avoid malformed pseudo-SQL or confusing placeholder noise?

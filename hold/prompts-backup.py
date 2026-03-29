@@ -21,9 +21,11 @@ def concept_intro_prompt(question_id: str) -> str:
         )
 
     syntax_pattern = strip_markdown_sql(q.get("syntax_pattern", ""))
+    simple_example = strip_markdown_sql(q.get("simple_example", ""))
     what_changes = q.get("what_changes_from_previous", "")
 
-    return f"""You are introducing ONLY the concept for the current SQL question.
+    if question_id in {"Q8", "Q9", "Q10", "Q11"}:
+        return f"""You are introducing ONLY the concept for the current SQL question.
 
 Question ID: {question_id}
 Concept: {concept}
@@ -49,26 +51,62 @@ Rules:
 - Do NOT mention future SQL concepts unless they are explicitly part of this question.
 - Do NOT give the full SQL answer.
 - Keep the explanation instructional, clear, and moderately detailed.
-- Use the reference syntax pattern only as teaching support, not as the final solution.
-- Preserve the abstraction level of the reference syntax pattern.
-- If the reference syntax pattern contains placeholders, blanks, bracketed labels, abstract slot markers, or partial structure, keep them abstract.
-- Do NOT replace placeholders with the actual table name, column name, condition, value, join key, or full solved clause unless that detail is already explicitly present in the reference syntax pattern by design.
+- Use the reference syntax pattern and example only as teaching support, not as the final solution unless they exactly match the current question by design.
 - The Assignment Instructions must clearly tell the student exactly what query to write.
 - The Assignment Instructions must begin with: "Write a SQL query that..."
 
-Return exactly in this format:
+Return:
+1. Explanation of the concept(s)
+2. Assignment Instructions
+3. Query blueprint
+4. Clause guide
+5. SQL scaffold with blanks
+6. One brief guidance note phrased as support, not as error feedback
+"""
+
+    example_reference_block = f"""
+
+Reference simple example:
+{simple_example}""" if simple_example else ""
+
+    example_return_line = "4. Simple example\n" if simple_example else ""
+
+    return f"""You are introducing ONLY the concept for the current SQL question.
+
+Question ID: {question_id}
+Concept: {concept}
+Task: {task}
+
+Teaching focus:
+{teaching_focus}
+
+Expected thinking:
+{thinking}
+
+What changes from the previous question:
+{what_changes}
+
+Common mistake to avoid:
+{common_mistake}
+
+Reference syntax pattern:
+{syntax_pattern}{example_reference_block}
+
+Rules:
+- Teach ONLY the concept required for this question.
+- Do NOT mention future SQL concepts.
+- Do NOT give the full SQL answer.
+- Keep the explanation instructional, clear, and moderately detailed.
+- Use the reference syntax pattern and example only as teaching support, not as the final solution unless they exactly match the current question by design.
+- The Assignment Instructions must clearly tell the student exactly what query to write.
+- The Assignment Instructions must begin with: "Write a SQL query that..."
+
+Return:
 1. Explanation of the concept
 2. Assignment Instructions
 3. Simple syntax pattern
-4. One key thing to notice
-5. One short guidance note
-
-Formatting rules:
-- Use exactly those five section titles.
-- Do NOT add sections such as Query Blueprint, Clause Guide, SQL Scaffold with Blanks, or Simple Example.
-- Do NOT use markdown headings like ###.
-- Do NOT use code fences.
-- If you show SQL-like text, present it as plain text only.
+{example_return_line}5. One key thing to notice
+6. One short guidance note (not corrective feedback)
 """
 
 def evaluation_prompt(
