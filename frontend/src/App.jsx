@@ -161,7 +161,6 @@ export default function App() {
   const [currentQuestionId, setCurrentQuestionId] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingMessage, setProcessingMessage] = useState("");
-  const [checkpointRequired, setCheckpointRequired] = useState(false);
   const [showResumePanel, setShowResumePanel] = useState(false);
   const [resumeReportText, setResumeReportText] = useState("");
   const [supportMessages, setSupportMessages] = useState([]);
@@ -206,7 +205,6 @@ export default function App() {
       setCurrentQuestionId(data.current_question_id || "");
       setMessages(["Resumed previous session from saved report."]);
       setLastFeedback("");
-      setCheckpointRequired(false);
       setShowResumePanel(false);
       setResumeReportText("");
     } catch (err) {
@@ -216,74 +214,52 @@ export default function App() {
   }
 
   async function handleStart() {
-    try {
-      const data = await startSession();
+  try {
+    const data = await startSession();
 
-      setSessionId(data.session_id);
-      localStorage.setItem("sqlcoach_session_id", data.session_id);
-      setMessages([data.message]);
-      setAssistantMessage("");
-      setCurrentQuestionId("");
-      setReportText("");
-      setLastFeedback("");
-      setCheckpointRequired(false);
-      setShowResumePanel(false);
-      setSupportMessages([]);
-      setSupportInput("");
-
-      const intro = await getConceptIntro(data.session_id);
-      setAssistantMessage(intro.assistant_message);
-      setCurrentQuestionId(intro.current_question_id);
-    } catch (err) {
-      console.error("Failed to start SQL Coach:", err);
-      setMessages([
-        "Could not start SQL Coach. Check that the backend is running.",
-      ]);
-    }
-  }
-
-  async function handleContinuePreviousSession() {
-    const savedSessionId = localStorage.getItem("sqlcoach_session_id");
+    setSessionId(data.session_id);
+    localStorage.setItem("sqlcoach_session_id", data.session_id);
+    setMessages([data.message]);
+    setAssistantMessage("");
+    setCurrentQuestionId("");
+    setReportText("");
+    setLastFeedback("");
+    setShowResumePanel(false);
     setSupportMessages([]);
     setSupportInput("");
-    if (savedSessionId) {
-      try {
-        const data = await resumeSession(savedSessionId);
-        setSessionId(data.session_id);
-        setAssistantMessage(data.assistant_message || "");
-        setCurrentQuestionId(data.current_question_id || "");
-        setMessages(["Resumed previous session from this browser."]);
-        setLastFeedback("");
-        setCheckpointRequired(false);
-        setShowResumePanel(false);
-        return;
-      } catch (err) {
-        console.error("Failed to continue previous browser session:", err);
-      }
-    }
 
-    setShowResumePanel(true);
+    const intro = await getConceptIntro(data.session_id);
+    setAssistantMessage(intro.assistant_message);
+    setCurrentQuestionId(intro.current_question_id);
+  } catch (err) {
+    console.error("Failed to start SQL Coach:", err);
+    setMessages([
+      "Could not start SQL Coach. Check that the backend is running.",
+    ]);
   }
+}
+async function handleContinuePreviousSession() {
+  const savedSessionId = localStorage.getItem("sqlcoach_session_id");
+  setSupportMessages([]);
+  setSupportInput("");
 
-  async function handleContinueAssignment() {
-    if (!sessionId) return;
-
-    setCheckpointRequired(false);
-    setIsProcessing(true);
-    setProcessingMessage("Loading next question...");
-
+  if (savedSessionId) {
     try {
-      const intro = await getConceptIntro(sessionId);
-      setAssistantMessage(intro.assistant_message);
-      setCurrentQuestionId(intro.current_question_id);
+      const data = await resumeSession(savedSessionId);
+      setSessionId(data.session_id);
+      setAssistantMessage(data.assistant_message || "");
+      setCurrentQuestionId(data.current_question_id || "");
+      setMessages(["Resumed previous session from this browser."]);
       setLastFeedback("");
+      setShowResumePanel(false);
+      return;
     } catch (err) {
-      console.error("Failed to continue assignment:", err);
-    } finally {
-      setIsProcessing(false);
-      setProcessingMessage("");
+      console.error("Failed to continue previous browser session:", err);
     }
   }
+
+  setShowResumePanel(true);
+}
 
   async function handleSendSupportChat() {
   if (!supportInput.trim() || !sessionId || !currentQuestionId || currentQuestionId === "COMPLETE") {
@@ -343,23 +319,39 @@ async function handleSubmitResponse(data) {
     localStorage.setItem("sqlcoach_session_id", data.session_id);
   }
 
-  setCheckpointRequired(!!data.require_checkpoint);
-
-  if (data.require_checkpoint) {
-    setLastFeedback("");
-    return;
-  }
-
   setLastFeedback(data.assistant_message || "");
 
-  // Stop here if assignment is complete
   if (data.current_question_id === "COMPLETE") {
     setCurrentQuestionId("COMPLETE");
     setAssistantMessage("");
     return;
   }
 
+  const activeSessionId = data.session_id || sessionId;
+  const nextQuestionId = data.current_question_id || currentQuestionId;
+
+  // If backend has already advanced the session, load the next intro
+  // even if should_advance is false because of legacy checkpoint behavior.
+  if (nextQuestionId !== currentQuestionId) {
+    setIsProcessing(true);
+    setProcessingMessage("Loading next question...");
+
+    try {
+      const intro = await getConceptIntro(activeSessionId);
+      setAssistantMessage(intro.assistant_message);
+      setCurrentQuestionId(nextQuestionId);
+      setLastFeedback("");
+    } catch (err) {
+      console.error("Failed to refresh current question after submit:", err);
+    } finally {
+      setIsProcessing(false);
+      setProcessingMessage("");
+    }
+    return;
+  }
+
   if (!data.should_advance) {
+    setCurrentQuestionId((prev) => data.current_question_id || prev);
     return;
   }
 
@@ -367,10 +359,9 @@ async function handleSubmitResponse(data) {
   setProcessingMessage("Loading next question...");
 
   try {
-    const activeSessionId = data.session_id || sessionId;
     const intro = await getConceptIntro(activeSessionId);
     setAssistantMessage(intro.assistant_message);
-    setCurrentQuestionId(intro.current_question_id);
+    setCurrentQuestionId(nextQuestionId);
     setLastFeedback("");
   } catch (err) {
     console.error("Failed to refresh current question after submit:", err);
@@ -379,229 +370,226 @@ async function handleSubmitResponse(data) {
     setProcessingMessage("");
   }
 }
+return (
+  <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
+    <h1>SQL Coach</h1>
+    <SessionHeader sessionId={sessionId} />
 
-  return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
-      <h1>SQL Coach</h1>
-      <SessionHeader sessionId={sessionId} />
+    <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+      <button onClick={handleStart}>Start SQL Coach</button>
+      <button onClick={handleContinuePreviousSession}>
+        Continue Previous Session
+      </button>
+      <button onClick={() => setShowResumePanel(true)}>
+        Resume from Saved Report
+      </button>
+      <button onClick={handleGetReport} disabled={!sessionId}>
+        Print Session Report
+      </button>
+    </div>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-        <button onClick={handleStart}>Start SQL Coach</button>
-        <button onClick={handleContinuePreviousSession}>
-          Continue Previous Session
-        </button>
-        <button onClick={() => setShowResumePanel(true)}>
-          Resume from Saved Report
-        </button>
-        <button onClick={handleGetReport} disabled={!sessionId}>
-          Print Session Report
-        </button>
-      </div>
-
-      {showResumePanel && (
-        <div
-          style={{
-            padding: 12,
-            background: "#f8f8ff",
-            border: "1px solid #cfd4ea",
-            borderRadius: 6,
-            marginBottom: 16,
-          }}
-        >
-          <div style={{ fontWeight: 700, marginBottom: 8 }}>
-            Resume from Saved Session Report
-          </div>
-          <div style={{ marginBottom: 8 }}>
-            Copy the text from a previously saved session report, paste it below,
-            then click <strong>Resume from Report</strong>.
-          </div>
-          <textarea
-            value={resumeReportText}
-            onChange={(e) => setResumeReportText(e.target.value)}
-            rows={8}
-            style={{ width: "100%", marginBottom: 10 }}
-            placeholder="Paste your saved session report here..."
-          />
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={handleResumeFromReport}>Resume from Report</button>
-            <button onClick={() => setShowResumePanel(false)}>Cancel</button>
-          </div>
-        </div>
-      )}
-
+    {showResumePanel && (
       <div
         style={{
-          background: "#fafafa",
           padding: 12,
-          borderRadius: 8,
+          background: "#f8f8ff",
+          border: "1px solid #cfd4ea",
+          borderRadius: 6,
           marginBottom: 16,
         }}
       >
-        {messages.map((msg, idx) => (
-          <div key={idx} style={{ marginBottom: 10, whiteSpace: "pre-wrap" }}>
-            {renderMessageWithLinks(msg)}
-          </div>
-        ))}
-      </div>
-
-      {currentQuestionId && currentQuestionId !== "COMPLETE" && (
-  <div style={{ marginBottom: 10 }}>
-    <strong>Current Question:</strong> {currentQuestionId}
-  </div>
-)}
-
-      {currentQuestionId === "COMPLETE" && (
-        <div
-          style={{
-            padding: 12,
-            background: "#eef8ee",
-            border: "1px solid #b7d8b7",
-            borderRadius: 6,
-            marginBottom: 12,
-          }}
-        >
-          <div style={{ fontWeight: 700, marginBottom: 6 }}>Assignment Complete</div>
-          <div style={{ marginBottom: 10 }}>
-            Click <strong>Print Session Report</strong> now to save your final work.
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={handleGetReport} disabled={!sessionId}>
-              Print Session Report
-            </button>
-          </div>
+        <div style={{ fontWeight: 700, marginBottom: 8 }}>
+          Resume from Saved Session Report
         </div>
-      )}
-
-      {assistantMessage && renderIntroSections(assistantMessage)}
-
-      {isProcessing && (
-        <div
-          style={{
-            padding: 10,
-            background: "#eef3ff",
-            border: "1px solid #b7c7ff",
-            borderRadius: 6,
-            marginBottom: 12,
-            display: "flex",
-            alignItems: "center",
-            fontStyle: "italic",
-          }}
-        >
-          <span className="spinner"></span>
-          {processingMessage}
+        <div style={{ marginBottom: 8 }}>
+          Copy the text from a previously saved session report, paste it below,
+          then click <strong>Resume from Report</strong>.
         </div>
-      )}
-
-      {lastFeedback && (
-        <div
-          style={{
-            padding: 12,
-            background: "#fff8e8",
-            border: "1px solid #e6d39b",
-            borderRadius: 6,
-            marginBottom: 12,
-          }}
-        >
-          <div style={{ fontWeight: 700, marginBottom: 4 }}>Feedback</div>
-          <div style={{ whiteSpace: "pre-wrap" }}>{lastFeedback}</div>
-        </div>
-      )}
-
-      {checkpointRequired && (
-        <div
-          style={{
-            padding: 12,
-            background: "#eef8ee",
-            border: "1px solid #b7d8b7",
-            borderRadius: 6,
-            marginBottom: 12,
-          }}
-        >
-          <div style={{ fontWeight: 700, marginBottom: 6 }}>Checkpoint</div>
-          <div style={{ marginBottom: 10 }}>  
-            Click <strong>Print Session Report</strong> now and save your
-            report. Then either continue now or come back later using{" "}
-            <strong>Continue Previous Session</strong>.
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={handleGetReport}>Print Session Report</button>
-            <button onClick={handleContinueAssignment}>
-              Continue Assignment
-            </button>
-          </div>
-        </div>
-      )}
-      {sessionId && currentQuestionId && currentQuestionId !== "COMPLETE" && (
-        <div
-          style={{
-            padding: 12,
-            background: "#f8f8ff",
-            border: "1px solid #cfd4ea",
-            borderRadius: 8,
-            marginBottom: 12,
-          }}
-        >
-          <div style={{ fontWeight: 700, marginBottom: 8 }}>Support Chat</div>
-          <div style={{ marginBottom: 10, lineHeight: 1.5 }}>
-            Ask for concept help, debugging guidance, or hints for the current question.
-          </div>
-
-          <div
-            style={{
-              maxHeight: 220,
-              overflowY: "auto",
-              background: "#ffffff",
-              border: "1px solid #e2e2e2",
-              borderRadius: 6,
-              padding: 10,
-              marginBottom: 10,
-            }}
-          >
-            {supportMessages.length === 0 ? (
-              <div style={{ color: "#666" }}>
-                No support messages yet.
-              </div>
-            ) : (
-              supportMessages.map((msg, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    marginBottom: 10,
-                    whiteSpace: "pre-wrap",
-                  }}
-                >
-                  <strong>{msg.role === "user" ? "You" : "Support"}</strong>
-                  <div>{msg.content}</div>
-                </div>
-              ))
-            )}
-          </div>
-
-          <textarea
-            value={supportInput}
-            onChange={(e) => setSupportInput(e.target.value)}
-            rows={3}
-            style={{ width: "100%", marginBottom: 10 }}
-            placeholder="Ask for help with the current concept or your debugging process..."
-          />
-
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={handleSendSupportChat} disabled={isSupportLoading}>
-              {isSupportLoading ? "Thinking..." : "Ask Support Chat"}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {sessionId && currentQuestionId !== "COMPLETE" && (
-        <ChatPanel
-          sessionId={sessionId}
-          currentQuestionId={currentQuestionId}
-          onSubmitResponse={handleSubmitResponse}
+        <textarea
+          value={resumeReportText}
+          onChange={(e) => setResumeReportText(e.target.value)}
+          rows={8}
+          style={{ width: "100%", marginBottom: 10 }}
+          placeholder="Paste your saved session report here..."
         />
-      )}
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={handleResumeFromReport}>Resume from Report</button>
+          <button onClick={() => setShowResumePanel(false)}>Cancel</button>
+        </div>
+      </div>
+    )}
 
-      <ReportView reportText={reportText} />
+    <div
+      style={{
+        background: "#fafafa",
+        padding: 12,
+        borderRadius: 8,
+        marginBottom: 16,
+      }}
+    >
+      {messages.map((msg, idx) => (
+        <div key={idx} style={{ marginBottom: 10, whiteSpace: "pre-wrap" }}>
+          {renderMessageWithLinks(msg)}
+        </div>
+      ))}
     </div>
-  );
+
+    {currentQuestionId && currentQuestionId !== "COMPLETE" && (
+      <div style={{ marginBottom: 10 }}>
+        <strong>Current Question:</strong> {currentQuestionId}
+      </div>
+    )}
+
+    {currentQuestionId === "COMPLETE" && (
+      <div
+        style={{
+          padding: 12,
+          background: "#eef8ee",
+          border: "1px solid #b7d8b7",
+          borderRadius: 6,
+          marginBottom: 12,
+        }}
+      >
+        <div style={{ fontWeight: 700, marginBottom: 6 }}>Assignment Complete</div>
+        <div style={{ marginBottom: 10 }}>
+          Click <strong>Print Session Report</strong> now to save your final work.
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={handleGetReport} disabled={!sessionId}>
+            Print Session Report
+          </button>
+        </div>
+      </div>
+    )}
+
+    {assistantMessage && renderIntroSections(assistantMessage)}
+
+    {isProcessing && (
+      <div
+        style={{
+          padding: 10,
+          background: "#eef3ff",
+          border: "1px solid #b7c7ff",
+          borderRadius: 6,
+          marginBottom: 12,
+          display: "flex",
+          alignItems: "center",
+          fontStyle: "italic",
+        }}
+      >
+        <span className="spinner"></span>
+        {processingMessage}
+      </div>
+    )}
+
+    {lastFeedback && (
+      <div
+        style={{
+          padding: 12,
+          background: "#fff8e8",
+          border: "1px solid #e6d39b",
+          borderRadius: 6,
+          marginBottom: 12,
+        }}
+      >
+        <div style={{ fontWeight: 700, marginBottom: 4 }}>Feedback</div>
+        <div style={{ whiteSpace: "pre-wrap" }}>{lastFeedback}</div>
+      </div>
+    )}
+
+    {currentQuestionId === "Q6" && (
+      <div
+        style={{
+          padding: 12,
+          background: "#eef8ee",
+          border: "1px solid #b7d8b7",
+          borderRadius: 6,
+          marginBottom: 12,
+        }}
+      >
+        <div style={{ fontWeight: 700, marginBottom: 6 }}>Good stopping point</div>
+        <div style={{ marginBottom: 10 }}>
+          Print your session report if you want to save progress.
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={handleGetReport} disabled={!sessionId}>
+            Print Session Report
+          </button>
+        </div>
+      </div>
+    )}
+
+    {sessionId && currentQuestionId && currentQuestionId !== "COMPLETE" && (
+      <div
+        style={{
+          padding: 12,
+          background: "#f8f8ff",
+          border: "1px solid #cfd4ea",
+          borderRadius: 8,
+          marginBottom: 12,
+        }}
+      >
+        <div style={{ fontWeight: 700, marginBottom: 8 }}>Support Chat</div>
+        <div style={{ marginBottom: 10, lineHeight: 1.5 }}>
+          Ask for concept help, debugging guidance, or hints for the current question.
+        </div>
+
+        <div
+          style={{
+            maxHeight: 220,
+            overflowY: "auto",
+            background: "#ffffff",
+            border: "1px solid #e2e2e2",
+            borderRadius: 6,
+            padding: 10,
+            marginBottom: 10,
+          }}
+        >
+          {supportMessages.length === 0 ? (
+            <div style={{ color: "#666" }}>
+              No support messages yet.
+            </div>
+          ) : (
+            supportMessages.map((msg, idx) => (
+              <div
+                key={idx}
+                style={{
+                  marginBottom: 10,
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                <strong>{msg.role === "user" ? "You" : "Support"}</strong>
+                <div>{msg.content}</div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <textarea
+          value={supportInput}
+          onChange={(e) => setSupportInput(e.target.value)}
+          rows={3}
+          style={{ width: "100%", marginBottom: 10 }}
+          placeholder="Ask for help with the current concept or your debugging process..."
+        />
+
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={handleSendSupportChat} disabled={isSupportLoading}>
+            {isSupportLoading ? "Thinking..." : "Ask Support Chat"}
+          </button>
+        </div>
+      </div>
+    )}
+
+    {sessionId && currentQuestionId !== "COMPLETE" && (
+      <ChatPanel
+        sessionId={sessionId}
+        currentQuestionId={currentQuestionId}
+        onSubmitResponse={handleSubmitResponse}
+      />
+    )}
+
+    <ReportView reportText={reportText} />
+  </div>
+);
 }

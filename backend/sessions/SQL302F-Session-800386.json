@@ -1,0 +1,286 @@
+{
+  "session_id": "SQL302F-Session-800386",
+  "student_id": null,
+  "current_question_id": "COMPLETE",
+  "completed_questions": [
+    "Q1",
+    "Q2",
+    "Q3",
+    "Q4",
+    "Q5",
+    "Q6",
+    "Q7",
+    "Q8",
+    "Q9",
+    "Q10",
+    "Q11"
+  ],
+  "checkpoint_completed": true,
+  "reflection_completed": false,
+  "question_progress": {
+    "Q1": {
+      "question_id": "Q1",
+      "status": "complete",
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "sql_query": "SELECT * FROM Customers;",
+          "sandbox_result": "Returned 91 rows with columns CustomerID, CustomerName, ContactName, Address, City, PostalCode, Country.",
+          "explanation": "This query selects all columns and rows from the Customers table.",
+          "evaluation_score": 2,
+          "evaluation_note": "The SQL correctly retrieves all columns and rows from the Customers table.",
+          "explanation_score": 1,
+          "explanation_note": "The explanation is correct but could be more detailed about the significance of using SELECT *.",
+          "error_type": "none",
+          "concept_to_reinforce": "SELECT * returns all columns from one table.",
+          "feedback_mode": "targeted_correction"
+        }
+      ],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": "none",
+      "last_feedback_mode": "targeted_correction"
+    },
+    "Q2": {
+      "question_id": "Q2",
+      "status": "complete",
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "sql_query": "SELECT CustomerName, City FROM Customers;",
+          "sandbox_result": "Returned 91 rows with columns CustomerName and City.",
+          "explanation": "This query selects the CustomerName and City columns from the Customers table.",
+          "evaluation_score": 2,
+          "evaluation_note": "The SQL correctly retrieves only the CustomerName and City columns as required.",
+          "explanation_score": 1,
+          "explanation_note": "The explanation is correct but could be more detailed about the purpose of selecting specific columns.",
+          "error_type": "none",
+          "concept_to_reinforce": "Selecting specific columns",
+          "feedback_mode": "targeted_correction"
+        }
+      ],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": "none",
+      "last_feedback_mode": "targeted_correction"
+    },
+    "Q3": {
+      "question_id": "Q3",
+      "status": "complete",
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "sql_query": "SELECT * FROM Customers WHERE Country = 'Germany';",
+          "sandbox_result": "Returned 11 rows where Country is Germany.",
+          "explanation": "This query uses WHERE to filter customers from Germany.",
+          "evaluation_score": 2,
+          "evaluation_note": "Query correctly retrieves all customers from Germany.",
+          "explanation_score": 1,
+          "explanation_note": "Explanation is correct but could be more detailed about the filtering process.",
+          "error_type": "none",
+          "concept_to_reinforce": "WHERE",
+          "feedback_mode": "targeted_correction"
+        }
+      ],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": "none",
+      "last_feedback_mode": "targeted_correction"
+    },
+    "Q4": {
+      "question_id": "Q4",
+      "status": "complete",
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "sql_query": "SELECT * FROM Customers WHERE Country = 'Germany' OR Country = 'France';",
+          "sandbox_result": "Returned rows where Country is Germany or France.",
+          "explanation": "This query uses OR to return customers from Germany or France.",
+          "evaluation_score": 2,
+          "evaluation_note": "SQL correctly retrieves customers from Germany or France.",
+          "explanation_score": 1,
+          "explanation_note": "Explanation is correct but could be more detailed about the use of OR.",
+          "error_type": "none",
+          "concept_to_reinforce": "OR in WHERE clause",
+          "feedback_mode": "targeted_correction"
+        }
+      ],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": "none",
+      "last_feedback_mode": "targeted_correction"
+    },
+    "Q5": {
+      "question_id": "Q5",
+      "status": "complete",
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "sql_query": "SELECT * FROM Customers ORDER BY CustomerName;",
+          "sandbox_result": "Returned 91 rows sorted by CustomerName.",
+          "explanation": "This query sorts all customer rows by CustomerName using ORDER BY.",
+          "evaluation_score": 2,
+          "evaluation_note": "The SQL correctly retrieves all customers and sorts them by CustomerName.",
+          "explanation_score": 1,
+          "explanation_note": "The explanation is correct but could be more detailed about the sorting process.",
+          "error_type": "none",
+          "concept_to_reinforce": "ORDER BY",
+          "feedback_mode": "targeted_correction"
+        }
+      ],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": "none",
+      "last_feedback_mode": "targeted_correction"
+    },
+    "Q6": {
+      "question_id": "Q6",
+      "status": "complete",
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "sql_query": "SELECT DISTINCT Country FROM Customers;",
+          "sandbox_result": "Returned unique country values from the Customers table.",
+          "explanation": "This query uses DISTINCT to return unique countries from Customers.",
+          "evaluation_score": 2,
+          "evaluation_note": "The SQL correctly retrieves unique countries from the Customers table.",
+          "explanation_score": 1,
+          "explanation_note": "The explanation is correct but could be more detailed about how DISTINCT works.",
+          "error_type": "none",
+          "concept_to_reinforce": "DISTINCT",
+          "feedback_mode": "targeted_correction"
+        }
+      ],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": "none",
+      "last_feedback_mode": "targeted_correction"
+    },
+    "Q7": {
+      "question_id": "Q7",
+      "status": "complete",
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "sql_query": "SELECT COUNT(*) FROM Orders;",
+          "sandbox_result": "Returned 1 row with the total number of orders, 196.",
+          "explanation": "This query uses COUNT to return the total number of orders.",
+          "evaluation_score": 2,
+          "evaluation_note": "The SQL correctly counts the total number of orders.",
+          "explanation_score": 1,
+          "explanation_note": "The explanation is correct but could be more detailed about the use of COUNT.",
+          "error_type": "none",
+          "concept_to_reinforce": "COUNT",
+          "feedback_mode": "targeted_correction"
+        }
+      ],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": "none",
+      "last_feedback_mode": "targeted_correction"
+    },
+    "Q8": {
+      "question_id": "Q8",
+      "status": "complete",
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "sql_query": "SELECT Country, COUNT(*) FROM Customers GROUP BY Country;",
+          "sandbox_result": "Returned one row per country with a count of customers in each country.",
+          "explanation": "This query uses GROUP BY Country and COUNT to count customers in each country.",
+          "evaluation_score": 2,
+          "evaluation_note": "The SQL correctly counts customers per country using GROUP BY.",
+          "explanation_score": 1,
+          "explanation_note": "The explanation is correct but could be more detailed about the grouping process.",
+          "error_type": "none",
+          "concept_to_reinforce": "GROUP BY",
+          "feedback_mode": "targeted_correction"
+        }
+      ],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": "none",
+      "last_feedback_mode": "targeted_correction"
+    },
+    "Q9": {
+      "question_id": "Q9",
+      "status": "complete",
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "sql_query": "SELECT Country, COUNT(*) FROM Customers GROUP BY Country HAVING COUNT(*) > 5;",
+          "sandbox_result": "Returned only countries whose customer count is greater than 5.",
+          "explanation": "This query uses HAVING with COUNT to filter grouped countries with more than 5 customers.",
+          "evaluation_score": 2,
+          "evaluation_note": "The SQL correctly uses HAVING to filter countries with more than 5 customers.",
+          "explanation_score": 1,
+          "explanation_note": "The explanation is correct but could be more detailed about the role of HAVING in filtering after aggregation.",
+          "error_type": "none",
+          "concept_to_reinforce": "HAVING",
+          "feedback_mode": "targeted_correction"
+        }
+      ],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": "none",
+      "last_feedback_mode": "targeted_correction"
+    },
+    "Q10": {
+      "question_id": "Q10",
+      "status": "complete",
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "sql_query": "SELECT Customers.CustomerName, Orders.OrderID FROM Customers JOIN Orders ON Customers.CustomerID = Orders.CustomerID;",
+          "sandbox_result": "Returned customer names with their order IDs by joining Customers and Orders on CustomerID.",
+          "explanation": "This query uses a JOIN between Customers and Orders on CustomerID to return CustomerName and OrderID.",
+          "evaluation_score": 2,
+          "evaluation_note": "The SQL correctly retrieves CustomerName and OrderID by joining Customers and Orders on CustomerID.",
+          "explanation_score": 1,
+          "explanation_note": "The explanation is correct but could be more detailed about the purpose of the JOIN.",
+          "error_type": "none",
+          "concept_to_reinforce": "JOIN",
+          "feedback_mode": "targeted_correction"
+        }
+      ],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": "none",
+      "last_feedback_mode": "targeted_correction"
+    },
+    "Q11": {
+      "question_id": "Q11",
+      "status": "complete",
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "sql_query": "SELECT Customers.CustomerName, COUNT(Orders.OrderID) FROM Customers JOIN Orders ON Customers.CustomerID = Orders.CustomerID GROUP BY Customers.CustomerName;",
+          "sandbox_result": "Returned one row per customer with the count of orders made by each customer.",
+          "explanation": "This query uses a JOIN, GROUP BY, and COUNT to show how many orders each customer has made.",
+          "evaluation_score": 2,
+          "evaluation_note": "The SQL query correctly joins the tables, counts the orders, and groups by customer.",
+          "explanation_score": 1,
+          "explanation_note": "The explanation is accurate but could be more detailed about the purpose of each SQL clause.",
+          "error_type": "none",
+          "concept_to_reinforce": "JOIN + GROUP BY + COUNT",
+          "feedback_mode": "targeted_correction"
+        }
+      ],
+      "concept_score": null,
+      "concept_note": null,
+      "hint_level_used": 0,
+      "last_error_type": "none",
+      "last_feedback_mode": "targeted_correction"
+    }
+  }
+}

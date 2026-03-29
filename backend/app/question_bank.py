@@ -36,7 +36,7 @@ QUESTION_BANK = {
         ],
         "teaching_focus": "Understand that SELECT can return only chosen columns instead of every column.",
         "common_mistake": "Using SELECT * instead of listing the required columns.",
-        "syntax_pattern": "SELECT CustomerName, City FROM Customers;",
+        "syntax_pattern": "SELECT CustomerName, [table] FROM [table];",
         "what_changes_from_previous": "Instead of returning all columns, now return only the columns requested.",
         "allowed_feedback_scope": [
             "specific columns",
@@ -62,7 +62,7 @@ QUESTION_BANK = {
         ],
         "teaching_focus": "Understand that WHERE filters rows by condition.",
         "common_mistake": "Selecting the right table but not filtering rows.",
-        "syntax_pattern": "SELECT * FROM Customers WHERE Country = 'Germany';",
+        "syntax_pattern": "SELECT * FROM [table] WHERE [column_name] = 'value';",
         "what_changes_from_previous": "Now keep the same table, but add a condition to filter which rows appear.",
         "allowed_feedback_scope": [
             "WHERE",
@@ -87,7 +87,7 @@ QUESTION_BANK = {
         ],
         "teaching_focus": "Understand how OR combines multiple conditions in a WHERE clause.",
         "common_mistake": "Writing one condition correctly but not repeating the column name in the second condition.",
-        "syntax_pattern": "SELECT * FROM Customers WHERE Country = 'Germany' OR Country = 'France';",
+        "syntax_pattern": "SELECT * FROM table_name WHERE column_name = 'value1' OR column_name = 'value2';",
         "what_changes_from_previous": "Instead of one filter condition, now combine two possible values.",
         "allowed_feedback_scope": [
             "OR",
@@ -112,7 +112,7 @@ QUESTION_BANK = {
         ],
         "teaching_focus": "Understand that ORDER BY controls the sorting of returned rows.",
         "common_mistake": "Returning the correct rows but not applying sorting.",
-        "syntax_pattern": "SELECT * FROM Customers ORDER BY CustomerName;",
+        "syntax_pattern": "[Insert SQL command here] * [insert SQL command here] table_name ORDER BY column_name;",
         "what_changes_from_previous": "Now focus on result order, not filtering.",
         "allowed_feedback_scope": [
             "ORDER BY",
@@ -136,7 +136,7 @@ QUESTION_BANK = {
         ],
         "teaching_focus": "Understand that DISTINCT removes duplicate values from a result set.",
         "common_mistake": "Selecting the correct column but leaving repeated values in the output.",
-        "syntax_pattern": "SELECT DISTINCT Country FROM Customers;",
+        "syntax_pattern": "SELECT DISTINCT ______ FROM ______;",
         "what_changes_from_previous": "Now the goal is not all rows, but unique values only.",
         "allowed_feedback_scope": [
             "DISTINCT",
@@ -160,7 +160,7 @@ QUESTION_BANK = {
         ],
         "teaching_focus": "Understand that COUNT() returns the number of rows or values being counted.",
         "common_mistake": "Selecting rows instead of aggregating them into one total.",
-        "syntax_pattern": "SELECT COUNT(*) FROM Orders;",
+        "syntax_pattern": "____ COUNT(*) _____   _____;",
         "what_changes_from_previous": "Now the goal is a single summary value instead of a list of rows.",
         "allowed_feedback_scope": [
             "COUNT",
@@ -184,7 +184,7 @@ QUESTION_BANK = {
         ],
         "teaching_focus": "Understand that GROUP BY creates one row per group before aggregation.",
         "common_mistake": "Using COUNT() without grouping, which produces only one overall total.",
-        "syntax_pattern": "SELECT Country, COUNT(*) FROM Customers GROUP BY Country;",
+        "syntax_pattern": "SELECT Country, ______ FROM ______ GROUP BY ______;",
         "what_changes_from_previous": "Instead of one total, now produce one count for each country.",
         "allowed_feedback_scope": [
             "GROUP BY",
@@ -209,7 +209,7 @@ QUESTION_BANK = {
         ],
         "teaching_focus": "Understand that HAVING filters grouped results after aggregation.",
         "common_mistake": "Trying to use WHERE instead of HAVING to filter aggregate results.",
-        "syntax_pattern": "SELECT Country, COUNT(*) FROM Customers GROUP BY Country HAVING COUNT(*) > 5;",
+        "syntax_pattern": "_______ _______, ______ FROM Customers _______ ______ HAVING COUNT(*) ______;",
         "what_changes_from_previous": "Now filter grouped results after the GROUP BY step.",
         "allowed_feedback_scope": [
             "HAVING",
@@ -234,7 +234,7 @@ QUESTION_BANK = {
         ],
         "teaching_focus": "Understand that JOIN combines related data across tables using a shared key.",
         "common_mistake": "Using the correct tables but not joining on the right key.",
-        "syntax_pattern": "SELECT Customers.CustomerName, Orders.OrderID FROM Customers JOIN Orders ON Customers.CustomerID = Orders.CustomerID;",
+        "syntax_pattern": "SELECT ______.CustomerName, _______.________ FROM Customers JOIN Orders ON ______ = _______;",
         "what_changes_from_previous": "Now combine data from two related tables instead of working within one table.",
         "allowed_feedback_scope": [
             "JOIN",
@@ -263,7 +263,7 @@ QUESTION_BANK = {
         ],
         "teaching_focus": "Integrate joining tables, counting records, and grouping results into one query.",
         "common_mistake": "Joining correctly but forgetting GROUP BY, or counting without grouping by customer.",
-        "syntax_pattern": "SELECT Customers.CustomerName, COUNT(Orders.OrderID) FROM Customers JOIN Orders ON Customers.CustomerID = Orders.CustomerID GROUP BY Customers.CustomerName;",
+        "syntax_pattern": "______ tablename ______, _______ _____ tablename _____ _____ ON _____.____ = _____.____ ______ _____._____;",
         "what_changes_from_previous": "This is the capstone question: combine joining, counting, and grouping in one query.",
         "allowed_feedback_scope": [
             "JOIN",
