@@ -253,12 +253,23 @@ def submit_turn(req: StudentTurnRequest) -> StudentTurnResponse:
     should_advance = False
 
     try:
-        parts = dict(
-            item.split(":::", 1) for item in req.message.split("\n") if ":::" in item
-        )
-        sql_query = parts["SQL"].strip()
-        sandbox_result = parts["RESULT"].strip()
-        explanation = parts.get("EXPLANATION", "").strip()
+        def extract_section(text: str, start_key: str, end_key: str | None = None) -> str:
+            start_marker = f"{start_key}:::"
+            if start_marker not in text:
+                return ""
+            section = text.split(start_marker, 1)[1]
+            if end_key:
+                end_marker = f"{end_key}:::"
+                if end_marker in section:
+                    section = section.split(end_marker, 1)[0]
+            return section.strip()
+
+        sql_query = extract_section(req.message, "SQL", "RESULT")
+        sandbox_result = extract_section(req.message, "RESULT", "EXPLANATION")
+        explanation = extract_section(req.message, "EXPLANATION")
+
+        if not sql_query or not sandbox_result:
+            raise ValueError("Missing required submission sections")
     except Exception:
         raise HTTPException(
             status_code=400,

@@ -74,22 +74,34 @@ export default function ChatPanel({
 
       {/* SQL */}
       <div style={{ marginBottom: 14 }}>
-        <div style={{ fontWeight: 700, marginBottom: 6 }}>SQL</div>
-        <textarea
-          value={sql}
-          onChange={(e) => setSql(e.target.value)}
-          rows={4}
-          style={{
-            width: "100%",
-            padding: 12,
-            border: "1px solid #bfc7d8",
-            borderRadius: 10,
-            fontFamily: "monospace",
-            fontSize: 15,
-            background: "#ffffff",
-          }}
-        />
+      <div style={{ fontWeight: 700, marginBottom: 6 }}>SQL</div>
+
+      <div
+        style={{
+          fontSize: 13,
+          color: "#666",
+          marginBottom: 8,
+          lineHeight: 1.4,
+        }}
+      >
+        ⚠️ For now, write your SQL query on a single line (no line breaks).
       </div>
+
+      <textarea
+        value={sql}
+        onChange={(e) => setSql(e.target.value)}
+        rows={4}
+        style={{
+          width: "100%",
+          padding: 12,
+          border: "1px solid #bfc7d8",
+          borderRadius: 10,
+          fontFamily: "monospace",
+          fontSize: 15,
+          background: "#ffffff",
+        }}
+      />
+    </div>
 
       {/* Result */}
       <div style={{ marginBottom: 14 }}>
