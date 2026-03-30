@@ -179,7 +179,7 @@ function renderMessageWithLinks(text) {
   if (text.includes("W3Schools SQL Try-It sandbox")) {
     return (
       <>
-        Session started. Open the{" "}
+        Session started. {/*Open the{" "}*/}
         <a
           href={url}
           target="_blank"
@@ -431,7 +431,31 @@ return (
         Print Session Report
       </button>
     </div>
-
+    <div
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 1000,
+        background: "#ffffff",
+        padding: "10px 16px",
+        borderBottom: "1px solid #e1e5ec",
+        textAlign: "center",
+        fontSize: 14,
+      }}
+    >
+      <a
+        href="https://www.w3schools.com/sql/trysql.asp?filename=trysql_select_all"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          fontWeight: 600,
+          color: "#1f3f8f",
+          textDecoration: "none",
+        }}
+      >
+        🔗 Open the W3Schools SQL Try-It sandbox in a new tab
+      </a>
+    </div>
     {showResumePanel && (
       <div
         style={{
@@ -526,18 +550,18 @@ return (
     {isProcessing && (
       <div
         style={{
-          padding: 10,
+          marginTop: 16,
+          padding: "14px 16px",
           background: "#eef3ff",
           border: "1px solid #b7c7ff",
-          borderRadius: 6,
-          marginBottom: 12,
-          display: "flex",
-          alignItems: "center",
-          fontStyle: "italic",
+          borderRadius: 10,
+          fontWeight: 700,
+          fontSize: 16,
+          color: "#1f3f8f",
+          textAlign: "center",
         }}
       >
-        <span className="spinner"></span>
-        {processingMessage}
+        ⏳ Loading next question...
       </div>
     )}
 

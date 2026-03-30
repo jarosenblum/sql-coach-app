@@ -25,7 +25,16 @@ export default function ChatPanel({
   async function handleSubmit() {
     if (loading) return;
 
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+
     setLoading(true);
+
+    // ⏱ delay scroll so user sees button change
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 600); // 400–800ms is ideal
 
     try {
       const payload = `SQL:::${sql}\nRESULT:::${result}\nEXPLANATION:::${explanation}`;

@@ -1,5 +1,5 @@
 {
-  "session_id": "SQL302F-Session-349904",
+  "session_id": "SQL302F-Session-134412",
   "student_id": null,
   "current_question_id": "Q3",
   "completed_questions": [
@@ -39,7 +39,7 @@
       "attempts": [
         {
           "attempt_number": 1,
-          "sql_query": "SELECT CustomerName, City \nFROM Customers;",
+          "sql_query": "SELECT CustomerName, City FROM Customers;",
           "sandbox_result": "Returned 91 rows with columns CustomerName and City.",
           "explanation": "This query selects the CustomerName and City columns from the Customers table.",
           "evaluation_score": 2,
@@ -69,7 +69,7 @@
           "evaluation_score": 0,
           "evaluation_note": "Query does not filter rows to return only customers from Germany.",
           "explanation_score": 1,
-          "explanation_note": "Explanation correctly identifies that the query selects from the Customers table but lacks the necessary filtering condition.",
+          "explanation_note": "Explanation correctly identifies that the query selects from the Customers table but lacks detail on filtering.",
           "error_type": "missing_filter",
           "concept_to_reinforce": "WHERE",
           "feedback_mode": "concept_reinforcement"

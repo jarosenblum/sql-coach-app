@@ -1,10 +1,9 @@
 {
-  "session_id": "SQL302F-Session-349904",
+  "session_id": "SQL302F-Session-544753",
   "student_id": null,
-  "current_question_id": "Q3",
+  "current_question_id": "Q2",
   "completed_questions": [
-    "Q1",
-    "Q2"
+    "Q1"
   ],
   "checkpoint_completed": false,
   "reflection_completed": false,
@@ -21,7 +20,7 @@
           "evaluation_score": 2,
           "evaluation_note": "The SQL correctly retrieves all columns and rows from the Customers table.",
           "explanation_score": 1,
-          "explanation_note": "The explanation is correct but could be more detailed about the significance of using SELECT *.",
+          "explanation_note": "The explanation is correct but could be more detailed about what 'all columns and rows' means.",
           "error_type": "none",
           "concept_to_reinforce": "SELECT * returns all columns from one table.",
           "feedback_mode": "targeted_correction"
@@ -35,51 +34,23 @@
     },
     "Q2": {
       "question_id": "Q2",
-      "status": "complete",
-      "attempts": [
-        {
-          "attempt_number": 1,
-          "sql_query": "SELECT CustomerName, City \nFROM Customers;",
-          "sandbox_result": "Returned 91 rows with columns CustomerName and City.",
-          "explanation": "This query selects the CustomerName and City columns from the Customers table.",
-          "evaluation_score": 2,
-          "evaluation_note": "The SQL correctly retrieves only the CustomerName and City columns as required.",
-          "explanation_score": 1,
-          "explanation_note": "The explanation is correct but could be more detailed about the purpose of selecting specific columns.",
-          "error_type": "none",
-          "concept_to_reinforce": "Selecting specific columns",
-          "feedback_mode": "targeted_correction"
-        }
-      ],
+      "status": "not_started",
+      "attempts": [],
       "concept_score": null,
       "concept_note": null,
       "hint_level_used": 0,
-      "last_error_type": "none",
-      "last_feedback_mode": "targeted_correction"
+      "last_error_type": null,
+      "last_feedback_mode": null
     },
     "Q3": {
       "question_id": "Q3",
-      "status": "in_progress",
-      "attempts": [
-        {
-          "attempt_number": 1,
-          "sql_query": "SELECT * FROM Customers;",
-          "sandbox_result": "Returned 91 rows with columns CustomerID, CustomerName, ContactName, Address, City, PostalCode, Country.",
-          "explanation": "This query selects all columns and rows from the Customers table.",
-          "evaluation_score": 0,
-          "evaluation_note": "Query does not filter rows to return only customers from Germany.",
-          "explanation_score": 1,
-          "explanation_note": "Explanation correctly identifies that the query selects from the Customers table but lacks the necessary filtering condition.",
-          "error_type": "missing_filter",
-          "concept_to_reinforce": "WHERE",
-          "feedback_mode": "concept_reinforcement"
-        }
-      ],
+      "status": "not_started",
+      "attempts": [],
       "concept_score": null,
       "concept_note": null,
       "hint_level_used": 0,
-      "last_error_type": "missing_filter",
-      "last_feedback_mode": "concept_reinforcement"
+      "last_error_type": null,
+      "last_feedback_mode": null
     },
     "Q4": {
       "question_id": "Q4",
