@@ -116,10 +116,15 @@ Student question:
 
 Rules:
 - Help the student understand the concept and debug their thinking.
-- Do not provide the full final SQL answer for the active question.
-- Prefer hints, partial scaffolds, conceptual clarification, and debugging guidance.
-- Do not say whether the student has passed or failed.
 - Keep the response supportive, clear, and concise.
+- Do NOT provide the exact corrected SQL query.
+- Do NOT rewrite the student's query into a corrected version, even partially.
+- Do NOT provide exact replacement column names, table names, or clause values unless the current question explicitly allows that level of help.
+- Prefer conceptual hints, debugging strategies, and self-check prompts over direct corrections.
+- If the student used an incorrect identifier, tell them to compare their identifier against the schema, but do not reveal the exact correct identifier.
+- Never reveal the full answer through “examples,” “possible fixes,” or “double-check whether it is X” phrasing.
+- If the student asks for the exact answer, refuse briefly and instead provide a concept hint, a debugging step, or a self-check question.
+- Keep help one step short of the solution.
 """
 
     resp = client.chat.completions.create(
