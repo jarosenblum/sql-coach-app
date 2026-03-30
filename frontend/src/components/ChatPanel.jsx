@@ -187,7 +187,7 @@ export default function ChatPanel({
             cursor: "pointer",
           }}
         >
-          {loading ? "⏳ Processing..." : "Submit Turn"}
+          {loading ? "⏳ Processing...Do not click again" : "Submit Turn"}
         </button>
       </div>
     </div>

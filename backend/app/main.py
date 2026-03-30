@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from datetime import datetime
+import time
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -43,6 +46,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def log_event(event: str, **fields) -> None:
+    timestamp = datetime.utcnow().isoformat()
+    payload = " | ".join(f"{k}={v}" for k, v in fields.items())
+    print(f"{timestamp} | {event}" + (f" | {payload}" if payload else ""))
 
 
 def _is_low_information_text(text: str) -> bool:
@@ -91,51 +100,6 @@ def _explanation_matches_question_concept(question_id: str, explanation: str) ->
     return match_count >= 1
 
 
-@app.get("/")
-def root():
-    return {"message": "SQL Coach backend is running"}
-
-
-@app.post("/start", response_model=StartSessionResponse)
-def start_session() -> StartSessionResponse:
-    state = new_session()
-    save_session(state)
-    return StartSessionResponse(
-        session_id=state.session_id,
-        message="Session started. Open the W3Schools SQL Try-It sandbox in a new tab.",
-        menu=[
-            "Start assignment walkthrough",
-            "Continue assignment",
-            "Print Session Report",
-            "Save and Exit",
-        ],
-    )
-
-
-@app.post("/concept-intro/{session_id}", response_model=StudentTurnResponse)
-def concept_intro(session_id: str) -> StudentTurnResponse:
-    state = load_session(session_id)
-    if not state:
-        raise HTTPException(status_code=404, detail="Session not found")
-
-    qid = state.current_question_id
-    if not qid:
-        raise HTTPException(status_code=400, detail="No active question. Please start a session.")
-
-    try:
-        intro = get_concept_intro(qid)
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Concept intro failed: {type(e).__name__}: {str(e)}",
-        )
-
-    return StudentTurnResponse(
-        assistant_message=intro,
-        session_id=session_id,
-        current_question_id=qid,
-    )
-
 def _extract_session_id_from_report(report_text: str) -> str:
     for line in report_text.splitlines():
         line = line.strip()
@@ -165,19 +129,86 @@ def _next_question_id_from_completed(completed_questions: list[str]) -> str:
 
     return ordered[-1]
 
-@app.get("/resume/{session_id}", response_model=StudentTurnResponse)
-def resume_session(session_id: str) -> StudentTurnResponse:
+
+@app.get("/")
+def root():
+    return {"message": "SQL Coach backend is running"}
+
+
+@app.post("/start", response_model=StartSessionResponse)
+def start_session() -> StartSessionResponse:
+    state = new_session()
+    save_session(state)
+    log_event("SESSION_START", session_id=state.session_id)
+
+    return StartSessionResponse(
+        session_id=state.session_id,
+        message="Session started. Open the W3Schools SQL Try-It sandbox in a new tab.",
+        menu=[
+            "Start assignment walkthrough",
+            "Continue assignment",
+            "Print Session Report",
+            "Save and Exit",
+        ],
+    )
+
+
+@app.post("/concept-intro/{session_id}", response_model=StudentTurnResponse)
+def concept_intro(session_id: str) -> StudentTurnResponse:
     state = load_session(session_id)
     if not state:
+        log_event("CONCEPT_INTRO_FAIL", session_id=session_id, reason="session_not_found")
         raise HTTPException(status_code=404, detail="Session not found")
 
     qid = state.current_question_id
     if not qid:
+        log_event("CONCEPT_INTRO_FAIL", session_id=session_id, reason="no_active_question")
+        raise HTTPException(status_code=400, detail="No active question. Please start a session.")
+
+    try:
+        intro = get_concept_intro(qid)
+        log_event("CONCEPT_INTRO_OK", session_id=session_id, question_id=qid)
+    except Exception as e:
+        log_event(
+            "CONCEPT_INTRO_ERROR",
+            session_id=session_id,
+            question_id=qid,
+            error=type(e).__name__,
+        )
+        raise HTTPException(
+            status_code=500,
+            detail=f"Concept intro failed: {type(e).__name__}: {str(e)}",
+        )
+
+    return StudentTurnResponse(
+        assistant_message=intro,
+        session_id=session_id,
+        current_question_id=qid,
+    )
+
+
+@app.get("/resume/{session_id}", response_model=StudentTurnResponse)
+def resume_session(session_id: str) -> StudentTurnResponse:
+    state = load_session(session_id)
+    if not state:
+        log_event("SESSION_RESUME_BROWSER_FAIL", session_id=session_id, reason="session_not_found")
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    qid = state.current_question_id
+    if not qid:
+        log_event("SESSION_RESUME_BROWSER_FAIL", session_id=state.session_id, reason="no_active_question")
         raise HTTPException(status_code=400, detail="No active question in saved session.")
 
     try:
         intro = get_concept_intro(qid)
+        log_event("SESSION_RESUME_BROWSER_OK", session_id=state.session_id, question_id=qid)
     except Exception as e:
+        log_event(
+            "SESSION_RESUME_BROWSER_ERROR",
+            session_id=state.session_id,
+            question_id=qid,
+            error=type(e).__name__,
+        )
         raise HTTPException(
             status_code=500,
             detail=f"Resume failed: {type(e).__name__}: {str(e)}",
@@ -195,10 +226,14 @@ def resume_session(session_id: str) -> StudentTurnResponse:
         should_advance=False,
     )
 
+
 @app.post("/resume-from-report", response_model=StudentTurnResponse)
 def resume_from_report(req: ResumeRequest) -> StudentTurnResponse:
     report_text = (req.saved_report_text or "").strip()
+    log_event("SESSION_RESUME_REPORT_ATTEMPT")
+
     if not report_text:
+        log_event("SESSION_RESUME_REPORT_FAIL", reason="empty_report")
         raise HTTPException(status_code=400, detail="Saved session report is required.")
 
     try:
@@ -217,6 +252,13 @@ def resume_from_report(req: ResumeRequest) -> StudentTurnResponse:
 
         intro = get_concept_intro(current_question_id)
 
+        log_event(
+            "SESSION_RESUME_REPORT_OK",
+            session_id=state.session_id,
+            question_id=current_question_id,
+            completed=len(completed_questions),
+        )
+
         return StudentTurnResponse(
             assistant_message=intro,
             session_id=state.session_id,
@@ -229,24 +271,38 @@ def resume_from_report(req: ResumeRequest) -> StudentTurnResponse:
             should_advance=False,
         )
     except Exception as e:
+        log_event("SESSION_RESUME_REPORT_FAIL", error=type(e).__name__)
         raise HTTPException(
             status_code=400,
             detail=f"Could not resume from report: {type(e).__name__}: {str(e)}",
         )
-    
+
+
 @app.post("/submit", response_model=StudentTurnResponse)
 def submit_turn(req: StudentTurnRequest) -> StudentTurnResponse:
+    submit_started = time.time()
+
     state = load_session(req.session_id)
     if not state:
+        log_event("SUBMIT_FAIL", session_id=req.session_id, reason="session_not_found")
         raise HTTPException(status_code=404, detail="Session not found")
 
     qid = state.current_question_id
     if not qid:
+        log_event("SUBMIT_FAIL", session_id=state.session_id, reason="no_active_question")
         raise HTTPException(status_code=400, detail="No active question. Please start a session.")
+
+    log_event("SUBMIT_RECEIVED", session_id=state.session_id, question_id=qid)
 
     try:
         qp = state.question_progress[qid]
     except KeyError:
+        log_event(
+            "SUBMIT_FAIL",
+            session_id=state.session_id,
+            question_id=qid,
+            reason="question_progress_not_found",
+        )
         raise HTTPException(status_code=404, detail="Question progress not found")
 
     response_question_id = qid
@@ -270,28 +326,56 @@ def submit_turn(req: StudentTurnRequest) -> StudentTurnResponse:
 
         if not sql_query or not sandbox_result:
             raise ValueError("Missing required submission sections")
+
+        log_event(
+            "SUBMIT_PARSED",
+            session_id=state.session_id,
+            question_id=qid,
+            sql_len=len(sql_query),
+            sql_lines=sql_query.count("\n") + 1,
+            result_len=len(sandbox_result),
+            explanation_len=len(explanation),
+        )
     except Exception:
+        log_event(
+            "SUBMIT_FAIL",
+            session_id=state.session_id,
+            question_id=qid,
+            reason="invalid_submission_format",
+        )
         raise HTTPException(
             status_code=400,
             detail="Submission format is invalid. Please submit SQL, Sandbox Result, and Explanation.",
         )
 
     if not sql_query:
+        log_event("SUBMIT_FAIL", session_id=state.session_id, question_id=qid, reason="missing_sql")
         raise HTTPException(status_code=400, detail="SQL query is required.")
 
     if not sandbox_result:
+        log_event("SUBMIT_FAIL", session_id=state.session_id, question_id=qid, reason="missing_sandbox_result")
         raise HTTPException(
             status_code=400,
-            detail="A Sandbox Result is required. Run your query in W3Schools and describe the output, including rows, columns, or the exact error message.",
+            detail=(
+                "A Sandbox Result is required. Run your query in W3Schools and describe the output, "
+                "including rows, columns, or the exact error message."
+            ),
         )
 
     if not explanation:
+        log_event("SUBMIT_FAIL", session_id=state.session_id, question_id=qid, reason="missing_explanation")
         raise HTTPException(
             status_code=400,
             detail="An Explanation is required. Describe what your query does.",
         )
 
     if _is_low_information_text(sandbox_result):
+        log_event(
+            "SUBMIT_FAIL",
+            session_id=state.session_id,
+            question_id=qid,
+            reason="low_information_sandbox_result",
+        )
         raise HTTPException(
             status_code=400,
             detail=(
@@ -301,6 +385,12 @@ def submit_turn(req: StudentTurnRequest) -> StudentTurnResponse:
         )
 
     if _is_low_information_text(explanation):
+        log_event(
+            "SUBMIT_FAIL",
+            session_id=state.session_id,
+            question_id=qid,
+            reason="low_information_explanation",
+        )
         raise HTTPException(
             status_code=400,
             detail=(
@@ -315,6 +405,12 @@ def submit_turn(req: StudentTurnRequest) -> StudentTurnResponse:
         keywords = QUESTION_BANK.get(qid, {}).get("explanation_keywords", [])
         keyword_hint = ", ".join(keywords[:3]) if keywords else concept
 
+        log_event(
+            "SUBMIT_FAIL",
+            session_id=state.session_id,
+            question_id=qid,
+            reason="concept_mismatch_explanation",
+        )
         raise HTTPException(
             status_code=400,
             detail=(
@@ -324,14 +420,29 @@ def submit_turn(req: StudentTurnRequest) -> StudentTurnResponse:
         )
 
     try:
+        log_event("SQL_EXECUTE_START", session_id=state.session_id, question_id=qid)
         computed_result = execute_student_sql(sql_query)
-        validation_result = validate_result_for_question(qid, computed_result)
 
         if not computed_result.get("executed", False):
+            log_event(
+                "SQL_EXECUTE_FAIL",
+                session_id=state.session_id,
+                question_id=qid,
+                error=computed_result.get("error", "unknown"),
+            )
             raise HTTPException(
                 status_code=400,
                 detail=f"Your SQL did not run successfully: {computed_result.get('error', 'Unknown SQL error.')}",
             )
+
+        log_event(
+            "SQL_EXECUTE_OK",
+            session_id=state.session_id,
+            question_id=qid,
+            row_count=computed_result.get("row_count", "na"),
+        )
+
+        validation_result = validate_result_for_question(qid, computed_result)
 
         eval_json = evaluate_submission(
             qid,
@@ -355,7 +466,6 @@ def submit_turn(req: StudentTurnRequest) -> StudentTurnResponse:
         error_type = eval_json.get("error_type")
         concept_to_reinforce = eval_json.get("concept_to_reinforce")
 
-        # Custom-GPT-like progression: SQL must be correct, explanation must be at least minimally adequate
         should_advance = correctness_score == 2 and explanation_score >= 1
 
         feedback_mode = choose_feedback_mode(eval_json, qp)
@@ -365,6 +475,16 @@ def submit_turn(req: StudentTurnRequest) -> StudentTurnResponse:
         print("DEBUG explanation_score:", explanation_score)
         print("DEBUG should_advance:", should_advance)
         print("DEBUG feedback:", feedback)
+
+        log_event(
+            "EVAL_RESULT",
+            session_id=state.session_id,
+            question_id=qid,
+            correctness_score=correctness_score,
+            explanation_score=explanation_score,
+            should_advance=should_advance,
+            feedback_mode=feedback_mode,
+        )
 
         record_attempt(
             state=state,
@@ -383,14 +503,27 @@ def submit_turn(req: StudentTurnRequest) -> StudentTurnResponse:
 
         updated_qp = state.question_progress.get(qid, qp)
 
-        # First advance internal state if this submission is good enough to move on
         if should_advance:
+            old_qid = qid
             mark_question_complete(state, qid)
+            log_event(
+                "QUESTION_ADVANCE",
+                session_id=state.session_id,
+                from_question=old_qid,
+                to_question=state.current_question_id,
+            )
+        else:
+            log_event("QUESTION_STAY", session_id=state.session_id, question_id=qid)
 
-        # Then handle checkpoint against the NEW state
         if checkpoint_required(state):
             state.checkpoint_completed = True
             save_session(state)
+            log_event(
+                "CHECKPOINT_TRIGGERED",
+                session_id=state.session_id,
+                question_id=state.current_question_id,
+                latency_sec=round(time.time() - submit_started, 2),
+            )
             return StudentTurnResponse(
                 assistant_message=(
                     "Checkpoint reached. This is a good place to save your progress. "
@@ -406,9 +539,13 @@ def submit_turn(req: StudentTurnRequest) -> StudentTurnResponse:
                 should_advance=False,
             )
 
-        # If assignment is complete, return a completion response instead of trying to load another question
         if state.current_question_id == "COMPLETE":
             save_session(state)
+            log_event(
+                "SESSION_COMPLETE",
+                session_id=state.session_id,
+                latency_sec=round(time.time() - submit_started, 2),
+            )
             return StudentTurnResponse(
                 assistant_message=(
                     "Assignment complete. Click 'Print Session Report' now to save your final work."
@@ -431,11 +568,24 @@ def submit_turn(req: StudentTurnRequest) -> StudentTurnResponse:
         )
 
         save_session(state)
+        log_event(
+            "SUBMIT_RESPONSE_SENT",
+            session_id=state.session_id,
+            question_id=qid,
+            response_question_id=state.current_question_id if should_advance else response_question_id,
+            latency_sec=round(time.time() - submit_started, 2),
+        )
         return response
 
     except HTTPException:
         raise
     except Exception as e:
+        log_event(
+            "SUBMIT_INTERNAL_ERROR",
+            session_id=req.session_id,
+            question_id=qid if "qid" in locals() else "unknown",
+            error=type(e).__name__,
+        )
         print("🔥 Internal error in submit_turn:", repr(e))
         raise HTTPException(
             status_code=500,
@@ -479,19 +629,33 @@ def hint(req: HintRequest) -> HintResponse:
         assistant_message=hint_text,
     )
 
+
 @app.post("/support-chat", response_model=SupportChatResponse)
 def support_chat(req: SupportChatRequest) -> SupportChatResponse:
     state = load_session(req.session_id)
     if not state:
+        log_event("SUPPORT_CHAT_FAIL", session_id=req.session_id, reason="session_not_found")
         raise HTTPException(status_code=404, detail="Session not found")
 
     qid = req.question_id or state.current_question_id
     if not qid or qid not in QUESTION_BANK:
+        log_event(
+            "SUPPORT_CHAT_FAIL",
+            session_id=state.session_id,
+            reason="invalid_question_id",
+        )
         raise HTTPException(status_code=400, detail="Invalid question ID")
 
     q = QUESTION_BANK[qid]
     concept = q["concept"]
     task = q["task"]
+
+    log_event(
+        "SUPPORT_CHAT_REQUEST",
+        session_id=state.session_id,
+        question_id=qid,
+        msg_len=len(req.student_message or ""),
+    )
 
     try:
         message = generate_support_chat_response(
@@ -502,18 +666,29 @@ def support_chat(req: SupportChatRequest) -> SupportChatResponse:
             last_feedback=req.last_feedback,
             current_sql=req.current_sql,
         )
+        log_event("SUPPORT_CHAT_RESPONSE", session_id=state.session_id, question_id=qid)
         return SupportChatResponse(assistant_message=message)
     except Exception as e:
+        log_event(
+            "SUPPORT_CHAT_FAIL",
+            session_id=state.session_id,
+            question_id=qid,
+            error=type(e).__name__,
+        )
         raise HTTPException(
             status_code=500,
             detail=f"Support chat failed: {type(e).__name__}: {str(e)}",
         )
 
+
 @app.get("/report/{session_id}", response_model=PrintReportResponse)
 def get_report(session_id: str) -> PrintReportResponse:
     state = load_session(session_id)
     if not state:
+        log_event("REPORT_FAIL", session_id=session_id, reason="session_not_found")
         raise HTTPException(status_code=404, detail="Session not found")
+
+    log_event("REPORT_GENERATED", session_id=session_id, question_id=state.current_question_id)
 
     return PrintReportResponse(
         session_id=session_id,
