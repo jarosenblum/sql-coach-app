@@ -698,6 +698,7 @@ def support_chat(req: SupportChatRequest) -> SupportChatResponse:
             session_id=state.session_id,
             question_id=qid,
             error=type(e).__name__,
+            error_detail=str(e),
         )
         raise HTTPException(
             status_code=500,
