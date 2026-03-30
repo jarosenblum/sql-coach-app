@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 import time
+import os
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -48,10 +49,33 @@ app.add_middleware(
 )
 
 
+LOG_DIR = "logs"
+
 def log_event(event: str, **fields) -> None:
     timestamp = datetime.utcnow().isoformat()
     payload = " | ".join(f"{k}={v}" for k, v in fields.items())
-    print(f"{timestamp} | {event}" + (f" | {payload}" if payload else ""))
+    line = f"{timestamp} | {event}" + (f" | {payload}" if payload else "")
+
+    # Keep existing behavior (Render logs)
+    print(line)
+
+    # --- per-session logging ---
+    session_id = fields.get("session_id", "unknown")
+
+    os.makedirs(LOG_DIR, exist_ok=True)
+    file_path = os.path.join(LOG_DIR, f"{session_id}.log")
+
+    try:
+        # overwrite file on session start
+        if event == "SESSION_START":
+            with open(file_path, "w") as f:
+                f.write(line + "\n")
+        else:
+            with open(file_path, "a") as f:
+                f.write(line + "\n")
+
+    except Exception as e:
+        print(f"LOG_WRITE_FAIL | session_id={session_id} | error={e}")
 
 
 def _is_low_information_text(text: str) -> bool:
