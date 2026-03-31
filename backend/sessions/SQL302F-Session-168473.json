@@ -1,5 +1,5 @@
 {
-  "session_id": "SQL302F-Session-278337",
+  "session_id": "SQL302F-Session-168473",
   "student_id": null,
   "current_question_id": "Q3",
   "completed_questions": [
@@ -19,19 +19,19 @@
           "sandbox_result": "Returned 91 rows with columns CustomerID, CustomerName, ContactName, Address, City, PostalCode, Country.",
           "explanation": "This query selects all columns and rows from the Customers table.",
           "evaluation_score": 2,
-          "evaluation_note": "The SQL correctly retrieves all columns and rows from the Customers table.",
-          "explanation_score": 1,
-          "explanation_note": "The explanation is correct but could be more detailed about the significance of using SELECT *.",
+          "evaluation_note": "The SQL query correctly retrieves all columns and rows from the Customers table.",
+          "explanation_score": 2,
+          "explanation_note": "The explanation accurately describes what the query does.",
           "error_type": "none",
-          "concept_to_reinforce": "SELECT * returns all columns from one table.",
-          "feedback_mode": "targeted_correction"
+          "concept_to_reinforce": "SELECT",
+          "feedback_mode": "affirm_correct"
         }
       ],
       "concept_score": null,
       "concept_note": null,
       "hint_level_used": 0,
       "last_error_type": "none",
-      "last_feedback_mode": "targeted_correction"
+      "last_feedback_mode": "affirm_correct"
     },
     "Q2": {
       "question_id": "Q2",
@@ -39,32 +39,6 @@
       "attempts": [
         {
           "attempt_number": 1,
-          "sql_query": "SELECT * FROM Customers;",
-          "sandbox_result": "Returned 91 rows with columns CustomerID, CustomerName, ContactName, Address, City, PostalCode, Country.",
-          "explanation": "This query selects all columns and rows from the Customers table.",
-          "evaluation_score": 0,
-          "evaluation_note": "Query should return exactly CustomerName and City.",
-          "explanation_score": 1,
-          "explanation_note": "Explanation correctly identifies that the query selects all columns.",
-          "error_type": "incorrect_columns_selected",
-          "concept_to_reinforce": "specific columns",
-          "feedback_mode": "concept_reinforcement"
-        },
-        {
-          "attempt_number": 2,
-          "sql_query": "SELECT * FROM Customers;",
-          "sandbox_result": "Returned 91 rows with columns CustomerID, CustomerName, ContactName, Address, City, PostalCode, Country.",
-          "explanation": "This query selects all columns and rows from the Customers table.",
-          "evaluation_score": 0,
-          "evaluation_note": "Query should return exactly CustomerName and City.",
-          "explanation_score": 1,
-          "explanation_note": "Explanation correctly identifies that the query selects all columns.",
-          "error_type": "incorrect_columns_selected",
-          "concept_to_reinforce": "specific columns",
-          "feedback_mode": "concept_reinforcement"
-        },
-        {
-          "attempt_number": 3,
           "sql_query": "SELECT CustomerName, City FROM Customers;",
           "sandbox_result": "Returned 91 rows with columns CustomerName and City.",
           "explanation": "This query selects the CustomerName and City columns from the Customers table.",

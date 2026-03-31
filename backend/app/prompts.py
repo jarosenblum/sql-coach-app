@@ -132,15 +132,35 @@ Deterministic validation:
 Student explanation:
 {explanation}
 
+Explanation scoring rubric:
+- 2 = The explanation is correct and sufficiently explains what the query does for THIS question, even if it is concise or not highly detailed.
+- 1 = The explanation is partially correct, noticeably vague in a way that misses an important idea, or incomplete enough to weaken understanding of how the query works.
+- 0 = The explanation is incorrect, off-topic, or shows misunderstanding of the SQL concept for THIS question.
+
+Important explanation scoring rules:
+- Do NOT lower the explanation score simply because the explanation could be more detailed, more polished, or more precise.
+- Concise but correct explanations should usually receive 2.
+- Evaluate only whether the student demonstrates correct understanding for THIS question, not whether the explanation is exhaustive or expert-level.
+- Do NOT treat minor lack of elaboration as a reason to assign 1 instead of 2.
+- If the student correctly explains the purpose of the SQL clauses used in the current question, assign explanation_score = 2.
+
+Explanation note rules:
+- When explanation_score = 2, the explanation_note may mention a small possible improvement, but it must clearly state that the explanation is correct and sufficient.
+- When explanation_score = 1, the explanation_note must identify a real missing idea, conceptual weakness, or meaningful vagueness; do NOT say only that it could be more detailed.
+- When explanation_score = 0, the explanation_note must clearly identify the misunderstanding or error.
+
 Evaluation rules:
 - Evaluate ONLY this question.
 - Use the computed query result and deterministic validation as the main source of truth for SQL correctness.
 - Treat the student-reported W3Schools result as observational evidence, not as the primary source of truth.
 - If the computed query result does not match the task, do not mark the SQL as correct.
+- If the explanation is correct and matches the query behavior for THIS question, assign explanation_score = 2.
 - Do NOT reference future questions.
 - Do NOT provide a full SQL solution.
 - If the SQL is correct but the explanation is weak, say so without changing the SQL guidance.
 - If you mention any SQL from the student, reproduce it as plain text only — never wrap it in backticks, code fences, or markdown.
+- correctness_score must align with result_matches_task: true → 2, false → 0 or 1 depending on severity.
+- correctness_score must align with result_matches_task: true → 2, false → 0 or 1 depending on severity.
 
 Return valid JSON with exactly these keys:
 - correctness_score: 0, 1, or 2
